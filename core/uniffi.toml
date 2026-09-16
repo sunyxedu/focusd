@@ -1,0 +1,4 @@
+[bindings.swift]
+module_name = "HemlixFocusCore"
+ffi_module_name = "HemlixFocusCoreFFI"
+generate_module_map = true

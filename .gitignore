@@ -1,0 +1,6 @@
+target/
+apple/Frameworks/
+apple/HemlixFocus.xcodeproj/
+.DS_Store
+node_modules/
+dist/
