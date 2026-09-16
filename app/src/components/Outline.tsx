@@ -223,6 +223,15 @@ function NameField({ id, value, onCommit, onEnter, onTab, placeholder, className
     const v = (ref.current?.textContent ?? '').replace(/\n+$/g, '');
     if (v !== value) onCommit(v);
   };
+  /** A never-named item abandoned empty is removed, as in Focusd. */
+  const discardIfUntitled = (): boolean => {
+    const v = (ref.current?.textContent ?? '').trim();
+    if (v === '' && value === '') {
+      void store.api.deleteItems([id]);
+      return true;
+    }
+    return false;
+  };
   return (
     <div
       ref={ref}
@@ -231,7 +240,12 @@ function NameField({ id, value, onCommit, onEnter, onTab, placeholder, className
       suppressContentEditableWarning
       spellCheck={false}
       data-placeholder={placeholder}
-      onBlur={commit}
+      onBlur={(e) => {
+        const next = e.relatedTarget as HTMLElement | null;
+        const stillInRow = !!next && !!ref.current?.closest('.row')?.contains(next);
+        if (!stillInRow && discardIfUntitled()) return;
+        commit();
+      }}
       onKeyDown={(e) => {
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') return; // handled by the outline (moves selection)
         e.stopPropagation();
@@ -241,6 +255,7 @@ function NameField({ id, value, onCommit, onEnter, onTab, placeholder, className
           onEnter();
         } else if (e.key === 'Escape') {
           e.preventDefault();
+          if (discardIfUntitled()) return;
           ref.current?.blur();
         } else if (e.key === 'Tab' && !e.shiftKey) {
           e.preventDefault();
@@ -791,7 +806,7 @@ export function Content() {
     });
 
   return (
-    <div className="content">
+    <div className="content" data-perspective={p}>
       <Header snap={snap} />
       {p === 'forecast' && <ForecastStrip snap={snap} />}
       {rows.length === 0 ? (

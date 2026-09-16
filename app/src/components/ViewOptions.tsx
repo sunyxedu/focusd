@@ -39,7 +39,7 @@ export function ViewOptionsPopover({ anchor, onClose }: { anchor: HTMLElement | 
   );
 
   return (
-    <Popover anchor={anchor} onClose={onClose} width={336} className="popover view-options">
+    <Popover anchor={anchor} onClose={onClose} width={336} align="center" className="popover view-options">
       {p === 'forecast' ? (
         <>
           <h4>In Forecast, include:</h4>

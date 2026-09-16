@@ -27,6 +27,8 @@ body.dark ::selection {
 /* ---------- toolbar ---------- */
 body.dark .tb-btn {
   color: #d0d0d4;
+  background: #2c2c2e;
+  border-color: #454548;
 }
 body.dark .tb-btn:hover {
   background: #363638;
@@ -101,9 +103,18 @@ body.dark .fc-wd {
   color: #8a8a90;
 }
 body.dark .fc-day.today {
-  background: #3a3a3c;
-  border-color: #505054;
+  background: #48484c;
   color: #e8e8ea;
+}
+body.dark .insp-footer {
+  background: #232324;
+}
+body.dark .tb-segment .tb-btn {
+  border: none;
+}
+body.dark .content-header .right .btn-plain {
+  background: none;
+  border: none;
 }
 body.dark .fc-day .cnt {
   background: #5a5a5f;
