@@ -555,14 +555,14 @@ pub fn forecast_buckets(db: &Database, d: &Derived, vo: &ViewOptions) -> Forecas
         }
     }
     for i in d.task_info.values().filter(|i| i.remaining) {
-        if i.effective_due_date.is_some() && i.task.due_date.is_some() {
-            add(&mut items, &bucket_for(i.task.due_date.unwrap()), ForecastItem::Task(i.clone()));
+        if let (Some(_), Some(due)) = (i.effective_due_date, i.task.due_date) {
+            add(&mut items, &bucket_for(due), ForecastItem::Task(i.clone()));
         }
-        if vo.forecast_include_planned && i.task.planned_date.is_some() {
-            add(&mut items, &bucket_for(i.task.planned_date.unwrap()), ForecastItem::Task(i.clone()));
+        if let (true, Some(planned)) = (vo.forecast_include_planned, i.task.planned_date) {
+            add(&mut items, &bucket_for(planned), ForecastItem::Task(i.clone()));
         }
-        if vo.forecast_include_deferred && i.task.defer_date.is_some() {
-            add(&mut items, &bucket_for(i.task.defer_date.unwrap()), ForecastItem::Task(i.clone()));
+        if let (true, Some(defer)) = (vo.forecast_include_deferred, i.task.defer_date) {
+            add(&mut items, &bucket_for(defer), ForecastItem::Task(i.clone()));
         }
         if vo.forecast_today_flagged && i.effective_flagged && i.available {
             add(&mut items, &days[1].key.clone(), ForecastItem::Task(i.clone()));
@@ -602,7 +602,6 @@ pub fn forecast_buckets(db: &Database, d: &Derived, vo: &ViewOptions) -> Forecas
             }
         }
     }
-    let mut days = days;
     for day in &mut days {
         if let Some(list) = items.get_mut(&day.key) {
             list.sort_by_key(|x| match x {

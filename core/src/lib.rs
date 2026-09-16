@@ -7,6 +7,9 @@
 //! module, where the `#[wasm_bindgen]` macro expansion itself contains
 //! `unsafe` FFI glue we do not write; that module opts out locally.
 #![deny(unsafe_code)]
+// The JSON bridge passes unit results through `ok(...)` on purpose; row
+// enums intentionally carry full records.
+#![allow(clippy::unit_arg, clippy::large_enum_variant, clippy::too_many_arguments, clippy::only_used_in_recursion)]
 
 pub mod bridge;
 pub mod dates;

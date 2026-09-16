@@ -101,7 +101,7 @@ function Screen({ onQuickEntry }: { onQuickEntry: () => void }) {
 
   return (
     <div className="c-screen" data-sub={showList ? 'list' : 'outline'}>
-      <div className="c-nav">
+      <div className="c-nav" data-long-title={title.length > 14}>
         <button className="c-back" onClick={back}>
           <ChevronLeft />
           <span>{backLabel}</span>

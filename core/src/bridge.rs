@@ -130,63 +130,195 @@ pub fn dispatch(store: &Store, method: &str, args: &Value) -> Result<Value, Stri
         "exportJson" => ok(store.export_json()),
 
         // ---- UI state (not undoable) ----
-        "setPerspective" => ok(store.set_perspective(arg(a, "perspective")?)),
-        "setSidebarSelection" => ok(store.set_sidebar_selection(arg(a, "ids")?)),
-        "setCollapsed" => ok(store.set_collapsed(arg(a, "key")?, arg(a, "collapsed")?)),
-        "setSidebarExpanded" => ok(store.set_sidebar_expanded(arg(a, "key")?, arg(a, "expanded")?)),
-        "expandAllSidebar" => ok(store.expand_all_sidebar(arg(a, "expanded")?)),
-        "setForecastSelectedDay" => ok(store.set_forecast_selected_day(opt(a, "day")?)),
-        "setFocus" => ok(store.set_focus(arg(a, "ids")?)),
-        "cleanUp" => ok(store.clean_up()),
-        "tick" => ok(store.tick()),
-        "setViewOptions" => ok(store.set_view_options(arg(a, "viewOptions")?)),
-        "updateSettings" => ok(store.update_settings(arg(a, "settings")?)),
+        "setPerspective" => {
+            store.set_perspective(arg(a, "perspective")?);
+            ok(())
+        },
+        "setSidebarSelection" => {
+            store.set_sidebar_selection(arg(a, "ids")?);
+            ok(())
+        },
+        "setCollapsed" => {
+            store.set_collapsed(arg(a, "key")?, arg(a, "collapsed")?);
+            ok(())
+        },
+        "setSidebarExpanded" => {
+            store.set_sidebar_expanded(arg(a, "key")?, arg(a, "expanded")?);
+            ok(())
+        },
+        "expandAllSidebar" => {
+            store.expand_all_sidebar(arg(a, "expanded")?);
+            ok(())
+        },
+        "setForecastSelectedDay" => {
+            store.set_forecast_selected_day(opt(a, "day")?);
+            ok(())
+        },
+        "setFocus" => {
+            store.set_focus(arg(a, "ids")?);
+            ok(())
+        },
+        "cleanUp" => {
+            store.clean_up();
+            ok(())
+        },
+        "tick" => {
+            store.tick();
+            ok(())
+        },
+        "setViewOptions" => {
+            store.set_view_options(arg(a, "viewOptions")?);
+            ok(())
+        },
+        "updateSettings" => {
+            store.update_settings(arg(a, "settings")?);
+            ok(())
+        },
 
         // ---- mutations (undoable) ----
-        "rename" => ok(store.rename(arg(a, "id")?, arg(a, "name")?)),
-        "setNote" => ok(store.set_note(arg(a, "id")?, arg(a, "note")?)),
-        "setItemDates" => ok(store.set_item_dates(arg(a, "id")?, opt(a, "defer")?, opt(a, "planned")?, opt(a, "due")?)),
-        "setItemTags" => ok(store.set_item_tags(arg(a, "id")?, arg(a, "tagIds")?)),
-        "addTagToItems" => ok(store.add_tag_to_items(arg(a, "ids")?, arg(a, "tagId")?)),
-        "setEstimate" => ok(store.set_estimate(arg(a, "id")?, opt(a, "minutes")?)),
-        "setRepetition" => ok(store.set_repetition(arg(a, "id")?, opt(a, "rule")?)),
-        "setSequential" => ok(store.set_sequential(arg(a, "id")?, arg(a, "sequential")?)),
-        "setCompletedByChildren" => ok(store.set_completed_by_children(arg(a, "id")?, arg(a, "value")?)),
-        "toggleFlag" => ok(store.toggle_flag(arg(a, "ids")?)),
-        "toggleComplete" => ok(store.toggle_complete(arg(a, "ids")?)),
-        "dropItems" => ok(store.drop_items(arg(a, "ids")?)),
-        "setProjectStatus" => ok(store.set_project_status(arg(a, "id")?, arg(a, "status")?)),
-        "setProjectType" => ok(store.set_project_type(arg(a, "id")?, arg(a, "projectType")?)),
-        "setNextReview" => ok(store.set_next_review(arg(a, "id")?, opt(a, "at")?)),
-        "setDatesForItems" => ok(store.set_dates_for_items(arg(a, "ids")?, tri(a, "defer")?, tri(a, "planned")?, tri(a, "due")?)),
-        "setTagsForItems" => ok(store.set_tags_for_items(arg(a, "ids")?, arg(a, "tagIds")?)),
+        "rename" => {
+            store.rename(arg(a, "id")?, arg(a, "name")?);
+            ok(())
+        },
+        "setNote" => {
+            store.set_note(arg(a, "id")?, arg(a, "note")?);
+            ok(())
+        },
+        "setItemDates" => {
+            store.set_item_dates(arg(a, "id")?, opt(a, "defer")?, opt(a, "planned")?, opt(a, "due")?);
+            ok(())
+        },
+        "setItemTags" => {
+            store.set_item_tags(arg(a, "id")?, arg(a, "tagIds")?);
+            ok(())
+        },
+        "addTagToItems" => {
+            store.add_tag_to_items(arg(a, "ids")?, arg(a, "tagId")?);
+            ok(())
+        },
+        "setEstimate" => {
+            store.set_estimate(arg(a, "id")?, opt(a, "minutes")?);
+            ok(())
+        },
+        "setRepetition" => {
+            store.set_repetition(arg(a, "id")?, opt(a, "rule")?);
+            ok(())
+        },
+        "setSequential" => {
+            store.set_sequential(arg(a, "id")?, arg(a, "sequential")?);
+            ok(())
+        },
+        "setCompletedByChildren" => {
+            store.set_completed_by_children(arg(a, "id")?, arg(a, "value")?);
+            ok(())
+        },
+        "toggleFlag" => {
+            store.toggle_flag(arg(a, "ids")?);
+            ok(())
+        },
+        "toggleComplete" => {
+            store.toggle_complete(arg(a, "ids")?);
+            ok(())
+        },
+        "dropItems" => {
+            store.drop_items(arg(a, "ids")?);
+            ok(())
+        },
+        "setProjectStatus" => {
+            store.set_project_status(arg(a, "id")?, arg(a, "status")?);
+            ok(())
+        },
+        "setProjectType" => {
+            store.set_project_type(arg(a, "id")?, arg(a, "projectType")?);
+            ok(())
+        },
+        "setNextReview" => {
+            store.set_next_review(arg(a, "id")?, opt(a, "at")?);
+            ok(())
+        },
+        "setDatesForItems" => {
+            store.set_dates_for_items(arg(a, "ids")?, tri(a, "defer")?, tri(a, "planned")?, tri(a, "due")?);
+            ok(())
+        },
+        "setTagsForItems" => {
+            store.set_tags_for_items(arg(a, "ids")?, arg(a, "tagIds")?);
+            ok(())
+        },
         "tagCounts" => ok(store.tag_counts()),
-        "setReviewInterval" => ok(store.set_review_interval(arg(a, "id")?, arg(a, "interval")?)),
-        "setTagStatus" => ok(store.set_tag_status(arg(a, "id")?, arg(a, "status")?)),
-        "setTagAllowsNextAction" => ok(store.set_tag_allows_next_action(arg(a, "id")?, arg(a, "value")?)),
-        "setFolderStatus" => ok(store.set_folder_status(arg(a, "id")?, arg(a, "status")?)),
+        "setReviewInterval" => {
+            store.set_review_interval(arg(a, "id")?, arg(a, "interval")?);
+            ok(())
+        },
+        "setTagStatus" => {
+            store.set_tag_status(arg(a, "id")?, arg(a, "status")?);
+            ok(())
+        },
+        "setTagAllowsNextAction" => {
+            store.set_tag_allows_next_action(arg(a, "id")?, arg(a, "value")?);
+            ok(())
+        },
+        "setFolderStatus" => {
+            store.set_folder_status(arg(a, "id")?, arg(a, "status")?);
+            ok(())
+        },
         "addTask" => ok(store.add_task(arg(a, "spec")?)),
         "addProject" => ok(store.add_project(arg(a, "name")?, opt(a, "folder")?)),
         "addFolder" => ok(store.add_folder(arg(a, "name")?, opt(a, "parent")?)),
         "addTag" => ok(store.add_tag(arg(a, "name")?, opt(a, "parent")?)),
-        "deleteItems" => ok(store.delete_items(arg(a, "ids")?)),
-        "moveTasks" => ok(store.move_tasks(arg(a, "ids")?, opt(a, "parent")?, opt(a, "after")?)),
-        "moveProject" => ok(store.move_project(arg(a, "id")?, opt(a, "folder")?, opt(a, "after")?)),
-        "moveTag" => ok(store.move_tag(arg(a, "id")?, opt(a, "parent")?, opt(a, "after")?)),
-        "moveFolder" => ok(store.move_folder(arg(a, "id")?, opt(a, "parent")?, opt(a, "after")?)),
-        "indent" => ok(store.indent(arg(a, "ids")?)),
-        "outdent" => ok(store.outdent(arg(a, "ids")?)),
-        "assignProject" => ok(store.assign_project(arg(a, "ids")?, opt(a, "project")?)),
-        "markReviewed" => ok(store.mark_reviewed(arg(a, "ids")?)),
+        "deleteItems" => {
+            store.delete_items(arg(a, "ids")?);
+            ok(())
+        },
+        "moveTasks" => {
+            store.move_tasks(arg(a, "ids")?, opt(a, "parent")?, opt(a, "after")?);
+            ok(())
+        },
+        "moveProject" => {
+            store.move_project(arg(a, "id")?, opt(a, "folder")?, opt(a, "after")?);
+            ok(())
+        },
+        "moveTag" => {
+            store.move_tag(arg(a, "id")?, opt(a, "parent")?, opt(a, "after")?);
+            ok(())
+        },
+        "moveFolder" => {
+            store.move_folder(arg(a, "id")?, opt(a, "parent")?, opt(a, "after")?);
+            ok(())
+        },
+        "indent" => {
+            store.indent(arg(a, "ids")?);
+            ok(())
+        },
+        "outdent" => {
+            store.outdent(arg(a, "ids")?);
+            ok(())
+        },
+        "assignProject" => {
+            store.assign_project(arg(a, "ids")?, opt(a, "project")?);
+            ok(())
+        },
+        "markReviewed" => {
+            store.mark_reviewed(arg(a, "ids")?);
+            ok(())
+        },
         "duplicateItems" => ok(store.duplicate_items(arg(a, "ids")?)),
         "convertToProject" => ok(store.convert_to_project(arg(a, "id")?)),
-        "setCalendarEvents" => ok(store.set_calendar_events(arg(a, "events")?)),
+        "setCalendarEvents" => {
+            store.set_calendar_events(arg(a, "events")?);
+            ok(())
+        },
         "calendarEvents" => ok(store.calendar_events()),
         "dueBetween" => ok(store.due_between(arg(a, "from")?, arg(a, "to")?)),
         "undo" => ok(store.undo()),
         "redo" => ok(store.redo()),
-        "resetToTutorial" => ok(store.reset_to_tutorial()),
-        "resetEmpty" => ok(store.reset_empty()),
+        "resetToTutorial" => {
+            store.reset_to_tutorial();
+            ok(())
+        },
+        "resetEmpty" => {
+            store.reset_empty();
+            ok(())
+        },
         "importJson" => store.import_json(arg(a, "text")?).map(|_| Value::Null).map_err(|e| e.to_string()),
 
         // ---- pure date helpers (so the UI never re-implements them) ----

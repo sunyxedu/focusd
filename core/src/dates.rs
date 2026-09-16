@@ -212,7 +212,7 @@ pub fn parse_natural_date(input: &str, default_hour: u32, now: i64) -> Option<i6
 
     // trailing time: "5pm", "17:30", "5:00 pm"
     let tokens: Vec<&str> = rest.split_whitespace().collect();
-    if tokens.len() >= 1 {
+    if !tokens.is_empty() {
         let n = tokens.len();
         let (time_tokens, consumed) = if n >= 2 && (tokens[n - 1] == "am" || tokens[n - 1] == "pm") {
             (format!("{}{}", tokens[n - 2], tokens[n - 1]), 2)

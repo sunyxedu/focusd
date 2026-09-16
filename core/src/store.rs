@@ -1096,7 +1096,7 @@ impl Store {
                 };
                 let mut siblings: Vec<&Task> = db.tasks.values().filter(|x| x.parent_id == t.parent_id && x.id != *id).collect();
                 siblings.sort_by(|a, b| a.rank.partial_cmp(&b.rank).unwrap_or(std::cmp::Ordering::Equal));
-                let prev = siblings.iter().filter(|s| s.rank < t.rank).last().map(|s| s.id.clone());
+                let prev = siblings.iter().rfind(|s| s.rank < t.rank).map(|s| s.id.clone());
                 if let Some(new_parent) = prev {
                     let rank = next_rank(db, Some(new_parent.clone()), None);
                     if let Some(x) = db.tasks.get_mut(id) {
