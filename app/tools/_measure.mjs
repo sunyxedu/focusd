@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1500, height: 980 } });
+await p.goto('http://localhost:5180/'); await p.waitForFunction(() => window.__focus && window.__focus.snapshot);
+await p.evaluate(() => window.__focus.goToPerspective('projects')); await p.waitForTimeout(400);
+const r = await p.evaluate(() => [...document.querySelectorAll('.row')].slice(0,4).map(e => { const b=e.getBoundingClientRect(); const i=e.querySelector('.row-inner').getBoundingClientRect(); const n=e.querySelector('.name').getBoundingClientRect(); return {row:[b.x,b.y,b.width,b.height], inner:[i.x,i.y,i.width,i.height], name:[n.x,n.y,n.height]}; }));
+console.log(JSON.stringify(r));
+const s = await p.evaluate(() => [...document.querySelectorAll('.sb-row')].slice(0,2).map(e => { const b=e.getBoundingClientRect(); return [b.x,b.y,b.width,b.height]; }));
+console.log(JSON.stringify(s));
+const t = await p.evaluate(() => [...document.querySelectorAll('.toolbar .tb-btn, .tb-segment, .tb-search')].map(e => { const b=e.getBoundingClientRect(); return [e.className, Math.round(b.x),Math.round(b.y),Math.round(b.width),Math.round(b.height)]; }));
+console.log(JSON.stringify(t));
+await b.close();

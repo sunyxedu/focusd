@@ -10,6 +10,7 @@ use tauri::{AppHandle, Emitter, Manager, State};
 
 pub mod calendar;
 pub mod maildrop;
+#[cfg(desktop)]
 pub mod menu;
 pub mod notify;
 
@@ -89,8 +90,10 @@ fn handle_urls(app: &AppHandle, urls: Vec<String>) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+    let builder = tauri::Builder::default();
+    #[cfg(desktop)]
+    let builder = builder.plugin(tauri_plugin_window_state::Builder::default().build());
+    builder
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

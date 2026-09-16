@@ -14,7 +14,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 hemlixfocus_core = { path = "../core" }
 tauri = { version = "2", features = ["devtools"] }
-tauri-plugin-window-state = "2"
+
 tauri-plugin-fs = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"
@@ -34,3 +34,6 @@ imap = { version = "3.0.0-alpha.15", default-features = false, features = ["rust
 mailparse = "0.17"
 keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }
 log = "0.4"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-window-state = "2"
