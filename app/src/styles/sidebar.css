@@ -1,0 +1,14 @@
+/* Sidebar additions (base rules live in styles.css) */
+.sb-row .label.dim { color: #9a9aa0; }
+.sb-row .label .placeholder { color: #b0b0b5; }
+.sb-row .aux.dot { font-size: 9px; }
+.sb-row .review-dot { margin-left: 6px; flex: none; }
+.fc-scroll { padding: 12px 10px 6px; }
+.fc-day .d { display: inline-block; }
+.fc-day.today { background: #ececee; border: none; color: var(--c-text); font-weight: 500; }
+.fc-day.today.on { background: var(--c-select); }
+.fc-grid { gap: 1px; }
+.fc-day { height: 50px; }
+.fc-wd { padding: 6px 0 3px; font-size: 11px; }
+.sb-row { height: 22px; }
+.sidebar[data-perspective='tags'] .sb-row { padding-left: 2px; }
