@@ -435,7 +435,16 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         } else {
             items.sort_by_key(|i| ctx.d.flat_order.get(&i.task.id).copied().unwrap_or(0));
         }
-        if items.is_empty() && (!ctx.q.is_empty() || (sel.is_empty() && !is_untagged)) {
+        // Projects carry tags too; Focusd lists them in the group after the actions.
+        let mut projects: Vec<&ProjectInfo> = ctx
+            .d
+            .project_info
+            .values()
+            .filter(|p| if is_untagged { p.project.tag_ids.is_empty() } else { p.project.tag_ids.iter().any(|x| id_set.contains(x)) })
+            .filter(|p| ctx.project_avail_ok(p) && matches(&ctx.q, &[&p.project.name, &p.project.note]))
+            .collect();
+        projects.sort_by(|a, b| a.project.rank.partial_cmp(&b.project.rank).unwrap_or(std::cmp::Ordering::Equal));
+        if items.is_empty() && projects.is_empty() && (!ctx.q.is_empty() || (sel.is_empty() && !is_untagged)) {
             continue;
         }
         let title = if is_untagged { "Untagged".to_string() } else { ctx.db.tags.get(tid).map(|t| t.name.clone()).unwrap_or_default() };
@@ -447,6 +456,9 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         }
         for i in items {
             rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, i.task.id), id: i.task.id.clone(), depth: 1, task: i.task.clone(), info: i.clone(), show_project: true, flat: true, collapsed: false, repeat_label: None }));
+        }
+        for p in projects {
+            rows.push(RowData::Project(ProjectRow { key: format!("{}:{}", key, p.project.id), id: p.project.id.clone(), depth: 1, project: p.project.clone(), info: p.clone(), collapsed: true, repeat_label: None }));
         }
     }
     let (a, pr) = count_rows(&rows);
