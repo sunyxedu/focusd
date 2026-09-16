@@ -1,4 +1,4 @@
-/* Focusd dark appearance. Activated by `body.dark` (see core/appearance.ts).
+/* Dark appearance. Activated by `body.dark` (see core/appearance.ts).
    Base rules live in styles.css and styles/*.css; everything here only
    overrides colours. Selectors are prefixed with `body.dark` so they win over
    the light rules at equal specificity + source order. */

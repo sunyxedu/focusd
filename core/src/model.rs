@@ -1,4 +1,4 @@
-//! Data model, mirroring the data model (task / project / folder / tag) and
+//! Data model (task / project / folder / tag) and
 //! the v2 XML database. All timestamps are milliseconds since the Unix epoch
 //! in local wall-clock semantics.
 use serde::{Deserialize, Serialize};
@@ -293,7 +293,7 @@ impl Default for ViewOptions {
 }
 
 /// A subscribed calendar feed (ICS URL) shown in Forecast, like the
-/// Calendar integration of Focusd.
+/// calendar integration.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CalendarFeed {

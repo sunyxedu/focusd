@@ -200,7 +200,7 @@ pub fn parse_duration(s: &str) -> Option<u32> {
     }
 }
 
-/// Natural-language date parser modelled on the Focusd date field.
+/// Natural-language date parser for the date fields.
 pub fn parse_natural_date(input: &str, default_hour: u32, now: i64) -> Option<i64> {
     let s = input.trim().to_lowercase();
     if s.is_empty() {

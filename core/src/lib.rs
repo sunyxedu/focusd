@@ -1,4 +1,4 @@
-//! Core: the complete Focusd data model and behaviour (availability,
+//! Core: the complete task-management data model and behaviour (availability,
 //! blocking, next actions, perspectives, repeats, review, natural-language
 //! dates, undo, persistence). Shells (Tauri desktop/mobile, wasm web) are
 //! thin layers over [`Store`] via the JSON [`bridge`].

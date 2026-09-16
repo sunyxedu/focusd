@@ -1,6 +1,6 @@
 //! Mail Drop: turn e-mails into Inbox items.
 //!
-//! Focusd' Mail Drop is a hosted address. Here the app itself watches an
+//! Instead of a hosted address, the app itself watches an
 //! IMAP folder you choose (e.g. a dedicated Gmail label or a "+focus"
 //! sub-address filter). Each unread message becomes an Inbox action:
 //! subject → name, plain-text body → note. Messages are then marked read
@@ -47,7 +47,7 @@ pub fn parse_message(raw: &[u8]) -> Parsed {
     };
     let subject = mail.headers.iter().find(|h| h.get_key().eq_ignore_ascii_case("Subject")).map(|h| h.get_value()).unwrap_or_default();
     let mut subject = subject.trim().to_string();
-    // "!" prefix or "[flag]" marker → flagged, like Focusd Mail Drop's "!" convention
+    // "!" prefix or "[flag]" marker → flagged, the "!" convention
     let mut flagged = false;
     if let Some(rest) = subject.strip_prefix('!') {
         flagged = true;

@@ -1,7 +1,7 @@
 # Working in this repo
 
-A 1:1 recreation of Focusd (everything except the icons) that runs on
-macOS, Windows, Linux, iOS, iPadOS and the web from one codebase.
+Focusd: task management and planning that runs on macOS, Windows, Linux,
+iOS, iPadOS and the web from one codebase.
 
 ```
 core/      Rust — ALL behaviour (model, availability/blocking, perspectives,
@@ -12,7 +12,6 @@ desktop/   Tauri 2 host: native window/menu, on-disk database, calendar
            feeds (ICS), Mail Drop (IMAP), notifications, deep links.
            #![forbid(unsafe_code)]. Also the iOS/Android host (gen/).
 scripts/   build-wasm.sh — core → app/wasm for the web build.
-ref/       Screenshots of the real Focusd used as the visual spec.
 ```
 
 ## Rules
@@ -27,8 +26,8 @@ ref/       Screenshots of the real Focusd used as the visual spec.
   `app/src/core/format.ts`; date *parsing* is `api.parseDate`.
 - One commit per step; keep `cargo test`, `cargo clippy -D warnings`,
   `npm run typecheck` green.
-- Compare against `ref/*.png` with `app/tools/shot.mjs` before calling
-  visual work done.
+- Screenshot with `app/tools/shot.mjs` and compare against the current
+  desktop look before calling visual work done.
 
 ## Commands
 

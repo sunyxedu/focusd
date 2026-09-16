@@ -1,4 +1,4 @@
-//! Native menu bar mirroring Focusd for Mac. Every item emits a
+//! Native menu bar. Every item emits a
 //! `menu` event with its id; the web layer performs the action so behaviour
 //! stays in one place (and identical to the keyboard shortcuts there).
 use tauri::menu::{AboutMetadata, Menu, MenuItem, PredefinedMenuItem, Submenu};

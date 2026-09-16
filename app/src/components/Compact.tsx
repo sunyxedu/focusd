@@ -1,4 +1,4 @@
-// Phone ("compact") layout, mirroring Focusd for iPhone: a Home screen
+// Phone ("compact") layout, a Home screen
 // listing the perspectives, then a navigation stack (sidebar list → outline),
 // with the Inspector and Quick Entry presented as bottom sheets. Reuses the
 // desktop components (Sidebar, Content, Inspector) restyled by compact.css.

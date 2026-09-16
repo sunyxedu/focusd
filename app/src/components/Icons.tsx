@@ -267,7 +267,7 @@ export const UndoIcon = (p: P) => (
   </svg>
 );
 
-/** Big empty-state artwork, drawn like Focusd's grey glyphs */
+/** Big empty-state artwork, grey glyphs */
 export const EmptyInboxArt = (p: P) => (
   <svg viewBox="0 0 200 200" fill="currentColor" {...p}>
     <path d="M30 40h140a14 14 0 0 1 14 14v100a14 14 0 0 1-14 14H30a14 14 0 0 1-14-14V54a14 14 0 0 1 14-14zm2 18v56h34a34 34 0 0 0 68 0h34V58H32z" opacity="0.6" />

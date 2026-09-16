@@ -1,5 +1,5 @@
 //! Derived state: effective status, availability, blocking, next actions,
-//! due-soon / overdue, badges. Mirrors Focusd semantics.
+//! due-soon / overdue, badges. Standard GTD semantics.
 use crate::dates::end_of_day;
 use crate::model::*;
 use serde::{Deserialize, Serialize};

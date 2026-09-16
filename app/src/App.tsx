@@ -12,7 +12,7 @@ import { SettingsModal } from './components/Settings';
 import { CompactShell } from './components/Compact';
 import type { Perspective } from './core/types';
 
-/** Width breakpoints mirroring Focusd' iPhone / iPad / Mac layouts. */
+/** Width breakpoints for the phone / tablet / desktop layouts. */
 export function useLayoutClass(): 'compact' | 'regular' | 'wide' {
   const calc = () => (window.innerWidth < 700 ? 'compact' : window.innerWidth < 1000 ? 'regular' : 'wide');
   const [cls, setCls] = useState<'compact' | 'regular' | 'wide'>(calc);

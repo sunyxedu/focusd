@@ -375,7 +375,7 @@ fn build_projects(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         }
     }
     let (a, pr) = count_rows(&rows);
-    // Focusd keeps the perspective name as the title; the sidebar
+    // The perspective name stays the title; the sidebar
     // selection is reflected by the "N projects selected" chip instead.
     let _ = &scope;
     let title = "Projects".to_string();
@@ -435,7 +435,7 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         } else {
             items.sort_by_key(|i| ctx.d.flat_order.get(&i.task.id).copied().unwrap_or(0));
         }
-        // Projects carry tags too; Focusd lists them in the group after the actions.
+        // Projects carry tags too; they are listed in the group after the actions.
         let mut projects: Vec<&ProjectInfo> = ctx
             .d
             .project_info
@@ -617,11 +617,11 @@ pub fn forecast_buckets(db: &Database, d: &Derived, vo: &ViewOptions) -> Forecas
     for day in &mut days {
         if let Some(list) = items.get_mut(&day.key) {
             list.sort_by_key(|x| match x {
-                // events first (as in Focusd, events are listed in time order at the top)
+                // events first, in time order at the top
                 ForecastItem::Event(e) => (0, e.start),
                 other => (1, other.date().unwrap_or(i64::MAX)),
             });
-            // events do not count towards the day badge, matching Focusd
+            // events do not count towards the day badge
             day.count = list.iter().filter(|x| !matches!(x, ForecastItem::Event(_))).count() as u32;
         }
     }

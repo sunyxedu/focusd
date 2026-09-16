@@ -656,7 +656,7 @@ export function Sidebar() {
   const snap = useSnapshot();
   if (!snap) return <div className="sidebar" />;
   const p = snap.perspective;
-  // Focusd shows no sidebar pane at all for Inbox, Flagged and Nearby.
+  // Inbox, Flagged and Nearby have no sidebar pane.
   if (p === 'inbox' || p === 'flagged' || p === 'nearby') return null;
   return (
     <div className="sidebar" data-perspective={p}>

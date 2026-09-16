@@ -637,7 +637,7 @@ impl Store {
         });
     }
 
-    /// Mark dropped (toggles; Option-Space in Focusd).
+    /// Mark dropped (toggles).
     pub fn drop_items(&self, ids: Vec<String>) {
         let now = now_ms();
         self.mutate(|db| {

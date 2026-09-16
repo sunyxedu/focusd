@@ -223,7 +223,7 @@ function NameField({ id, value, onCommit, onEnter, onTab, placeholder, className
     const v = (ref.current?.textContent ?? '').replace(/\n+$/g, '');
     if (v !== value) onCommit(v);
   };
-  /** A never-named item abandoned empty is removed, as in Focusd. */
+  /** A never-named item abandoned empty is removed. */
   const discardIfUntitled = (): boolean => {
     const v = (ref.current?.textContent ?? '').trim();
     if (v === '' && value === '') {
@@ -288,7 +288,7 @@ interface RowProps {
 
 const RowView = React.memo(function RowView({ row, snap, selected, hasKids, noteExpanded, onSelect, onDragStart, onDragOver, onDrop, dropInto, onContextMenu, editField, setEditField }: RowProps) {
   const api = store.api;
-  // Focusd: the disclosure column is fixed; bodies indent 27px per level
+  // The disclosure column is fixed; bodies indent 27px per level
   // below the project (projects hide their status column entirely).
   const indent = Math.max(row.depth - 1, 0) * 27;
   const collapsed = row.kind === 'event' ? false : row.collapsed;
