@@ -1,0 +1,49 @@
+/* Inspector: additions on top of styles.css (which keeps the shared look). */
+.inspector {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+.insp-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.insp-footer {
+  flex: none;
+  height: 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 8px;
+  background: var(--c-sidebar);
+}
+.insp-multi {
+  color: #7a7a80;
+  min-height: 0;
+}
+.insp-hide {
+  width: 18px;
+  height: 18px;
+  color: #a1a1a6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.insp-hide:hover {
+  color: var(--c-text2);
+}
+.insp-hide svg {
+  width: 14px;
+  height: 14px;
+}
+.insp-body .insp-note {
+  min-height: 54px;
+  resize: none;
+}
+.datefield.readonly input {
+  color: var(--c-text2);
+}
