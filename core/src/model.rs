@@ -6,7 +6,8 @@ use std::collections::HashMap;
 
 pub type Id = String;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum ProjectStatus {
     Active,
     OnHold,
@@ -14,27 +15,31 @@ pub enum ProjectStatus {
     Dropped,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum ProjectType {
     Parallel,
     Sequential,
     SingleActions,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum TagStatus {
     Active,
     OnHold,
     Dropped,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum FolderStatus {
     Active,
     Dropped,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum RepeatUnit {
     Minute,
     Hour,
@@ -44,7 +49,8 @@ pub enum RepeatUnit {
     Year,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum RepeatMethod {
     /// "Regularly": fixed schedule
     Fixed,
@@ -54,7 +60,8 @@ pub enum RepeatMethod {
     DueAfterCompletion,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RepetitionRule {
     pub every: u32,
     pub unit: RepeatUnit,
@@ -63,7 +70,8 @@ pub struct RepetitionRule {
     pub weekdays: Vec<u8>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum ReviewUnit {
     Day,
     Week,
@@ -71,13 +79,15 @@ pub enum ReviewUnit {
     Year,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ReviewInterval {
     pub steps: u32,
     pub unit: ReviewUnit,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Folder {
     pub id: Id,
     pub name: String,
@@ -89,7 +99,8 @@ pub struct Folder {
     pub modified_at: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Tag {
     pub id: Id,
     pub name: String,
@@ -102,7 +113,8 @@ pub struct Tag {
     pub modified_at: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Project {
     pub id: Id,
     pub name: String,
@@ -128,7 +140,8 @@ pub struct Project {
     pub modified_at: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Task {
     pub id: Id,
     pub name: String,
@@ -151,7 +164,8 @@ pub struct Task {
     pub modified_at: i64,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Perspective {
     Inbox,
     Projects,
@@ -196,7 +210,8 @@ impl Perspective {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Availability {
     FirstAvailable,
     Available,
@@ -204,7 +219,8 @@ pub enum Availability {
     Everything,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum FlaggedGrouping {
     Ungrouped,
     Project,
@@ -213,7 +229,8 @@ pub enum FlaggedGrouping {
     Defer,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum RowLayout {
     Default,
     CustomFluid,
@@ -221,7 +238,8 @@ pub enum RowLayout {
 }
 
 /// Per-perspective View Options (the "eye" popover).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ViewOptions {
     pub availability: Availability,
     // Projects
@@ -274,7 +292,8 @@ impl Default for ViewOptions {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Settings {
     /// hours before a due date at which an item becomes "due soon"
     pub due_soon_hours: u32,
@@ -294,7 +313,8 @@ impl Default for Settings {
 /// UI state that is persisted with the database (perspective, sidebar
 /// selection, collapsed rows, pinned items kept visible until Clean Up).
 /// Transient state (text selection, search text) lives in the app layer.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UiState {
     pub perspective: Perspective,
     /// perspective key -> selected sidebar ids
@@ -315,6 +335,7 @@ impl Default for UiState {
 
 /// Everything that is persisted.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Database {
     pub version: u32,
     pub folders: HashMap<Id, Folder>,

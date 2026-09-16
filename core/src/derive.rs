@@ -5,14 +5,16 @@ use crate::model::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum DueState {
     None,
     DueSoon,
     Overdue,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskInfo {
     pub task: Task,
     pub project: Option<Project>,
@@ -37,7 +39,8 @@ pub struct TaskInfo {
     pub is_group: bool,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectInfo {
     pub project: Project,
     pub effective_status: ProjectStatus,
@@ -51,7 +54,8 @@ pub struct ProjectInfo {
     pub needs_review: bool,
 }
 
-#[derive(Debug, Clone, Copy, Default, uniffi::Record)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Badges {
     pub inbox: u32,
     pub forecast: u32,
@@ -59,7 +63,8 @@ pub struct Badges {
     pub review: u32,
 }
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TagCounts {
     pub available: u32,
     pub remaining: u32,

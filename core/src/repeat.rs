@@ -99,7 +99,6 @@ pub fn advance_review(from: i64, iv: &ReviewInterval) -> i64 {
 }
 
 /// Human-readable description, e.g. "Every 2 weeks on Mon, Fri (defer another)".
-#[uniffi::export]
 pub fn hf_describe_repetition(rule: RepetitionRule) -> String {
     describe_rule(&rule)
 }

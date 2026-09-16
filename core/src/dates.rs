@@ -378,83 +378,67 @@ pub fn weekday_from_index(i: u32) -> Weekday {
 
 /* ---------------- UniFFI-exported helpers for the app shell ---------------- */
 
-#[uniffi::export]
 pub fn hf_now() -> i64 {
     now_ms()
 }
 
-#[uniffi::export]
 pub fn hf_start_of_day(ms: i64) -> i64 {
     start_of_day(ms)
 }
 
-#[uniffi::export]
 pub fn hf_add_days(ms: i64, n: i64) -> i64 {
     add_days(ms, n)
 }
 
 /// Parse natural-language dates ("tomorrow 5pm", "fri", "2w", "sep 20").
-#[uniffi::export]
 pub fn hf_parse_date(input: String, default_hour: u32) -> Option<i64> {
     parse_natural_date(&input, default_hour, now_ms())
 }
 
-#[uniffi::export]
 pub fn hf_parse_duration(s: String) -> Option<u32> {
     parse_duration(&s)
 }
 
-#[uniffi::export]
 pub fn hf_format_duration(minutes: u32) -> String {
     format_duration(minutes)
 }
 
-#[uniffi::export]
 pub fn hf_relative_date_label(ms: i64) -> String {
     relative_date_label(ms, now_ms())
 }
 
-#[uniffi::export]
 pub fn hf_relative_date_time_label(ms: i64) -> String {
     relative_date_time_label(ms, now_ms())
 }
 
-#[uniffi::export]
 pub fn hf_full_date_label(ms: i64) -> String {
     full_date_label(ms)
 }
 
-#[uniffi::export]
 pub fn hf_time_label(ms: i64) -> String {
     time_label(ms)
 }
 
-#[uniffi::export]
 pub fn hf_day_key(ms: i64) -> String {
     day_key(ms)
 }
 
-#[uniffi::export]
 pub fn hf_long_date_label(ms: i64) -> String {
     long_date_label(ms)
 }
 
-#[uniffi::export]
 pub fn hf_weekday_index(ms: i64) -> u32 {
     weekday_index(ms)
 }
 
-#[uniffi::export]
 pub fn hf_day_of_month(ms: i64) -> u32 {
     day_of_month(ms)
 }
 
-#[uniffi::export]
 pub fn hf_month_short(ms: i64) -> String {
     month_short(ms).to_string()
 }
 
-#[uniffi::export]
 pub fn hf_weekday_short(ms: i64) -> String {
     weekday_short(ms).to_string()
 }

@@ -1,5 +1,6 @@
-//! The UniFFI-facing store: owns the database, derived state, undo stacks
-//! and file persistence. The SwiftUI app is a thin shell over this object.
+//! The store: owns the database, derived state, undo stacks
+//! and file persistence. The Tauri / wasm shells are thin layers over this object (see `bridge.rs`).
+use serde::{Deserialize, Serialize};
 use crate::dates::now_ms;
 use crate::derive::*;
 use crate::model::*;
@@ -10,7 +11,8 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-#[derive(Debug, uniffi::Error)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum StoreError {
     Io(String),
     Parse(String),
@@ -30,13 +32,10 @@ impl std::fmt::Display for StoreError {
 }
 impl std::error::Error for StoreError {}
 
-#[uniffi::export(callback_interface)]
-pub trait StoreListener: Send + Sync {
-    fn data_changed(&self);
-}
 
 /// Everything needed to create a task (Quick Entry, forecast + button).
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NewTaskSpec {
     pub name: String,
     pub note: String,
@@ -55,28 +54,32 @@ pub struct NewTaskSpec {
     pub repetition: Option<RepetitionRule>,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TagListEntry {
     pub tag: Tag,
     pub depth: u32,
     pub effective_status: TagStatus,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectListEntry {
     pub project: Project,
     pub folder_path: String,
     pub info: ProjectInfo,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum SearchResultKind {
     Folder,
     Project,
     Tag,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchResult {
     pub kind: SearchResultKind,
     pub id: Id,
@@ -90,10 +93,10 @@ struct Inner {
     redo: Vec<Database>,
 }
 
-#[derive(uniffi::Object)]
+
 pub struct Store {
     inner: Mutex<Inner>,
-    listeners: Mutex<Vec<Arc<Box<dyn StoreListener>>>>,
+    revision: std::sync::atomic::AtomicU64,
     /// None = in-memory (tests / previews)
     path: Option<PathBuf>,
 }
@@ -107,11 +110,9 @@ fn load_from(path: &PathBuf) -> Option<Database> {
     Some(db)
 }
 
-#[uniffi::export]
 impl Store {
     /// Open (or create) the database file at `path`. Seeds the tutorial
     /// database on first launch.
-    #[uniffi::constructor]
     pub fn open(path: String) -> Result<Arc<Self>, StoreError> {
         let pb = PathBuf::from(&path);
         let db = match load_from(&pb) {
@@ -126,18 +127,13 @@ impl Store {
                 db
             }
         };
-        Ok(Arc::new(Self { inner: Mutex::new(Inner { db, undo: Vec::new(), redo: Vec::new() }), listeners: Mutex::new(Vec::new()), path: Some(pb) }))
+        Ok(Arc::new(Self { inner: Mutex::new(Inner { db, undo: Vec::new(), redo: Vec::new() }), revision: std::sync::atomic::AtomicU64::new(0), path: Some(pb) }))
     }
 
     /// In-memory store: tutorial content when `seed` is true, else empty.
-    #[uniffi::constructor]
     pub fn in_memory(seed: bool) -> Arc<Self> {
         let db = if seed { seed_database() } else { Database::empty() };
-        Arc::new(Self { inner: Mutex::new(Inner { db, undo: Vec::new(), redo: Vec::new() }), listeners: Mutex::new(Vec::new()), path: None })
-    }
-
-    pub fn add_listener(&self, listener: Box<dyn StoreListener>) {
-        self.listeners.lock().unwrap().push(Arc::new(listener));
+        Arc::new(Self { inner: Mutex::new(Inner { db, undo: Vec::new(), redo: Vec::new() }), revision: std::sync::atomic::AtomicU64::new(0), path: None })
     }
 
     // ---------------- queries ----------------
@@ -1094,10 +1090,13 @@ fn rank_after(siblings: &[(Id, f64)], after: Option<Id>) -> f64 {
 
 impl Store {
     fn emit(&self) {
-        let listeners: Vec<Arc<Box<dyn StoreListener>>> = self.listeners.lock().unwrap().clone();
-        for l in listeners {
-            l.data_changed();
-        }
+        self.revision.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    }
+
+    /// Monotonic counter bumped on every change; shells poll/compare it to
+    /// know when to refresh their snapshot and persist.
+    pub fn revision(&self) -> u64 {
+        self.revision.load(std::sync::atomic::Ordering::SeqCst)
     }
 
     fn save(&self) {

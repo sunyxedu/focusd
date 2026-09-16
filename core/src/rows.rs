@@ -1,12 +1,14 @@
 //! Builds the rows shown in the content outline for the current perspective,
 //! applying view options, sidebar selection, focus, search and collapse state.
 //! Also builds the sidebar model for each perspective.
+use serde::{Deserialize, Serialize};
 use crate::dates::{add_days, day_key, end_of_day, long_date_label, start_of_day, weekday_short, day_of_month};
 use crate::derive::*;
 use crate::model::*;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskRow {
     pub key: String,
     pub id: Id,
@@ -18,7 +20,8 @@ pub struct TaskRow {
     pub collapsed: bool,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectRow {
     pub key: String,
     pub id: Id,
@@ -28,7 +31,8 @@ pub struct ProjectRow {
     pub collapsed: bool,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct FolderRow {
     pub key: String,
     pub id: Id,
@@ -37,7 +41,8 @@ pub struct FolderRow {
     pub collapsed: bool,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HeaderRow {
     pub key: String,
     pub id: Id,
@@ -49,7 +54,8 @@ pub struct HeaderRow {
     pub collapsed: bool,
 }
 
-#[derive(Debug, Clone, uniffi::Enum)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub enum RowData {
     Task(TaskRow),
     Project(ProjectRow),
@@ -76,7 +82,8 @@ impl RowData {
     }
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ContentModel {
     pub rows: Vec<RowData>,
     pub title: String,
@@ -434,7 +441,8 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
     base_model(Perspective::Tags, rows, title, summary(a, pr, "action"), empty.into())
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ForecastDay {
     /// 'past' | 'future' | YYYY-MM-DD
     pub key: String,
@@ -447,7 +455,8 @@ pub struct ForecastDay {
     pub is_today: bool,
 }
 
-#[derive(Debug, Clone, uniffi::Enum)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub enum ForecastItem {
     Task(TaskInfo),
     Project(ProjectInfo),
@@ -481,7 +490,8 @@ impl ForecastItem {
     }
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ForecastModel {
     pub days: Vec<ForecastDay>,
     pub items: HashMap<String, Vec<ForecastItem>>,
@@ -701,7 +711,8 @@ fn build_review(ctx: &Ctx, sel: &[Id]) -> ContentModel {
 
 /* ---------------- Sidebar model ---------------- */
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum SidebarRowKind {
     Folder,
     Project,
@@ -710,7 +721,8 @@ pub enum SidebarRowKind {
     ReviewProject,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SidebarRow {
     pub key: String,
     pub id: Option<Id>,
@@ -731,7 +743,8 @@ pub struct SidebarRow {
     pub available_count: u32,
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SidebarModel {
     pub perspective: Perspective,
     pub rows: Vec<SidebarRow>,
