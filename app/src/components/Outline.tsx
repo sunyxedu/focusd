@@ -797,7 +797,7 @@ export function Content() {
       {rows.length === 0 ? (
         <div className="empty" onClick={() => store.select([])}>
           <EmptyArt />
-          {(ui.search || p !== 'inbox') && <div className="msg">{ui.search ? 'No matching items' : snap.content.emptyMessage}</div>}
+          {(ui.search || p === 'nearby') && <div className="msg">{ui.search ? 'No matching items' : snap.content.emptyMessage}</div>}
         </div>
       ) : (
         <div

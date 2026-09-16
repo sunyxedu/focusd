@@ -375,13 +375,10 @@ fn build_projects(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         }
     }
     let (a, pr) = count_rows(&rows);
-    let title = if scope.len() == 1 {
-        ctx.db.projects.get(&scope[0]).map(|p| p.name.clone()).or_else(|| ctx.db.folders.get(&scope[0]).map(|f| f.name.clone())).filter(|n| !n.is_empty()).unwrap_or_else(|| "Projects".into())
-    } else if scope.len() > 1 {
-        format!("{} Items", scope.len())
-    } else {
-        "Projects".into()
-    };
+    // Focusd keeps the perspective name as the title; the sidebar
+    // selection is reflected by the "N projects selected" chip instead.
+    let _ = &scope;
+    let title = "Projects".to_string();
     let empty = match ctx.vo.availability {
         Availability::Available => "No available projects",
         Availability::Remaining => "No remaining projects",
@@ -444,7 +441,7 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         let title = if is_untagged { "Untagged".to_string() } else { ctx.db.tags.get(tid).map(|t| t.name.clone()).unwrap_or_default() };
         let key = format!("tag:{}", tid);
         let collapsed = ctx.collapsed(&key);
-        rows.push(RowData::Header(HeaderRow { key: key.clone(), id: key.clone(), depth: 0, title, count: Some(items.len() as u32), sub: None, day_key: None, collapsed }));
+        rows.push(RowData::Header(HeaderRow { key: key.clone(), id: key.clone(), depth: 0, title, count: None, sub: None, day_key: None, collapsed }));
         if collapsed {
             continue;
         }
@@ -453,17 +450,8 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         }
     }
     let (a, pr) = count_rows(&rows);
-    let title = if sel.len() == 1 {
-        if sel[0] == "__untagged" {
-            "Untagged".into()
-        } else {
-            ctx.db.tags.get(&sel[0]).map(|t| t.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| "Tags".into())
-        }
-    } else if sel.len() > 1 {
-        format!("{} Tags", sel.len())
-    } else {
-        "Tags".into()
-    };
+    let _ = &sel;
+    let title = "Tags".to_string();
     let empty = match ctx.vo.availability {
         Availability::Available => "No available items",
         _ => "No remaining items",
