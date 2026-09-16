@@ -72,7 +72,7 @@ the macOS / Linux / Windows bundles on every push.
 
 ```
 core/       Rust core + JSON bridge (bridge.rs) + wasm export (wasm.rs)
-app/        React UI; src/core = typed API + store; src/legacy = the original prototype
+app/        React UI; src/core = typed API + store; src/components = the views
 desktop/    Tauri host: lib.rs (IPC), menu.rs, calendar.rs, maildrop.rs, notify.rs
 scripts/    build-wasm.sh
 ref/        Focusd reference screenshots
