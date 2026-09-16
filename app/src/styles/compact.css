@@ -493,3 +493,9 @@ body[data-layout='regular'] .sidebar {
     box-shadow: 8px 0 30px rgba(0, 0, 0, 0.12);
   }
 }
+
+/* paint the safe-area insets (status bar / home indicator) like the screen */
+body[data-layout='compact'],
+body[data-layout='compact'] #root {
+  background: var(--c-inset-bg);
+}

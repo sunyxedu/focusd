@@ -1,7 +1,10 @@
 target/
-apple/Frameworks/
 .DS_Store
 node_modules/
 dist/
 app/wasm/
-desktop/gen/
+desktop/gen/schemas/
+desktop/gen/apple/build/
+desktop/gen/apple/xcuserdata/
+desktop/gen/apple/**/xcuserdata/
+desktop/gen/apple/Externals/
