@@ -95,11 +95,11 @@ export function App() {
         case 'toggleInspector': return store.setUi({ inspectorVisible: !store.ui.inspectorVisible });
         case 'viewOptions': return (document.querySelector('[data-view-options]') as HTMLElement | null)?.click();
         case 'expandAll': {
-          for (const r of s.content.rows) if (r.collapsed) await api.setCollapsed(r.key, false);
+          for (const r of s.content.rows) if (r.kind !== 'event' && r.collapsed) await api.setCollapsed(r.key, false);
           return void api.expandAllSidebar(true);
         }
         case 'collapseAll': {
-          for (const r of s.content.rows) if (!r.collapsed && (r.kind === 'project' || r.kind === 'folder' || r.kind === 'header' || (r.kind === 'task' && r.info.hasChildren))) await api.setCollapsed(r.key, true);
+          for (const r of s.content.rows) if (r.kind !== 'event' && !r.collapsed && (r.kind === 'project' || r.kind === 'folder' || r.kind === 'header' || (r.kind === 'task' && r.info.hasChildren))) await api.setCollapsed(r.key, true);
           return void api.expandAllSidebar(false);
         }
         case 'goBack': return store.goBack();
