@@ -78,6 +78,16 @@ pub enum SearchResultKind {
     Tag,
 }
 
+/// A due item for notifications.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DueItem {
+    pub id: Id,
+    pub name: String,
+    pub due: i64,
+    pub project: Option<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchResult {
@@ -770,6 +780,104 @@ impl Store {
         id
     }
 
+    /// Duplicate tasks/projects (with their subtrees) right after the
+    /// originals. Returns the new top-level ids.
+    pub fn duplicate_items(&self, ids: Vec<String>) -> Vec<String> {
+        let now = now_ms();
+        let mut out = Vec::new();
+        self.mutate(|db| {
+            let d = derive_all(db, now);
+            for id in &ids {
+                if let Some(orig) = db.tasks.get(id).cloned() {
+                    let new_id = copy_task_tree(db, &d, &orig, orig.parent_id.clone(), Some(orig.id.clone()), now);
+                    out.push(new_id);
+                } else if let Some(orig) = db.projects.get(id).cloned() {
+                    let mut p = orig.clone();
+                    p.id = new_id();
+                    p.created_at = now;
+                    p.modified_at = now;
+                    let siblings = sorted_project_siblings(db, &orig.folder_id);
+                    p.rank = rank_after(&siblings, Some(orig.id.clone()));
+                    db.projects.insert(p.id.clone(), p.clone());
+                    let roots: Vec<Task> = {
+                        let mut v: Vec<Task> = db.tasks.values().filter(|t| t.parent_id.as_deref() == Some(orig.id.as_str())).cloned().collect();
+                        v.sort_by(|a, b| a.rank.partial_cmp(&b.rank).unwrap_or(std::cmp::Ordering::Equal));
+                        v
+                    };
+                    for t in roots {
+                        copy_task_tree(db, &d, &t, Some(p.id.clone()), None, now);
+                    }
+                    out.push(p.id);
+                }
+            }
+        });
+        out
+    }
+
+    /// Turn a task (with its children) into a standalone project in the
+    /// same folder as its former project. Returns the new project id.
+    pub fn convert_to_project(&self, id: String) -> Option<String> {
+        let now = now_ms();
+        let mut result = None;
+        self.mutate(|db| {
+            let Some(task) = db.tasks.get(&id).cloned() else { return };
+            let d = derive_all(db, now);
+            let folder = d.task_info.get(&id).and_then(|i| i.project.as_ref()).and_then(|p| p.folder_id.clone());
+            let mut p = make_project(&task.name, now);
+            p.note = task.note.clone();
+            p.folder_id = folder.clone();
+            p.flagged = task.flagged;
+            p.tag_ids = task.tag_ids.clone();
+            p.defer_date = task.defer_date;
+            p.planned_date = task.planned_date;
+            p.due_date = task.due_date;
+            p.estimated_minutes = task.estimated_minutes;
+            p.repetition = task.repetition.clone();
+            p.project_type = if task.sequential { ProjectType::Sequential } else { ProjectType::Parallel };
+            p.completed_by_children = task.completed_by_children;
+            p.rank = last_rank(db.projects.values().filter(|x| x.folder_id == folder).map(|x| x.rank));
+            let pid = p.id.clone();
+            db.projects.insert(pid.clone(), p);
+            let kids: Vec<Id> = db.tasks.values().filter(|t| t.parent_id.as_deref() == Some(id.as_str())).map(|t| t.id.clone()).collect();
+            for k in kids {
+                if let Some(t) = db.tasks.get_mut(&k) {
+                    t.parent_id = Some(pid.clone());
+                    t.modified_at = now;
+                }
+            }
+            db.tasks.remove(&id);
+            db.ui.pinned_ids.retain(|x| x != &id);
+            result = Some(pid);
+        });
+        result
+    }
+
+    /// Replace the cached calendar events (fetched by the host from the
+    /// subscribed feeds). Not undoable.
+    pub fn set_calendar_events(&self, events: Vec<CalendarEvent>) {
+        self.ui_change(|db| db.calendar_events = events);
+    }
+
+    pub fn calendar_events(&self) -> Vec<CalendarEvent> {
+        self.with_db(|db| db.calendar_events.clone())
+    }
+
+    /// Items whose due time falls within `[from, to]`, for the host to turn
+    /// into system notifications.
+    pub fn due_between(&self, from: i64, to: i64) -> Vec<DueItem> {
+        let inner = self.inner.lock().unwrap();
+        let d = derive_all(&inner.db, now_ms());
+        let mut out: Vec<DueItem> = d
+            .task_info
+            .values()
+            .filter(|i| i.remaining && !i.on_hold)
+            .filter_map(|i| i.effective_due_date.filter(|t| *t >= from && *t <= to).map(|t| DueItem { id: i.task.id.clone(), name: i.task.name.clone(), due: t, project: i.project.as_ref().map(|p| p.name.clone()) }))
+            .chain(d.project_info.values().filter(|p| p.remaining).filter_map(|p| p.project.due_date.filter(|t| *t >= from && *t <= to).map(|t| DueItem { id: p.project.id.clone(), name: p.project.name.clone(), due: t, project: None })))
+            .collect();
+        out.sort_by_key(|x| x.due);
+        out
+    }
+
     // ---------------- structure ----------------
 
     pub fn delete_items(&self, ids: Vec<String>) {
@@ -1080,6 +1188,35 @@ fn next_rank(db: &Database, parent: Option<Id>, after: Option<Id>) -> f64 {
     siblings.last().map(|s| s.rank + 1000.0).unwrap_or(1000.0)
 }
 
+fn sorted_project_siblings(db: &Database, folder: &Option<Id>) -> Vec<(Id, f64)> {
+    let mut v: Vec<(Id, f64)> = db.projects.values().filter(|p| &p.folder_id == folder).map(|p| (p.id.clone(), p.rank)).collect();
+    v.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
+    v
+}
+
+/// Deep-copy `orig` and its descendants under `parent`, placed after
+/// `after` (or at the end). Returns the copy's id.
+fn copy_task_tree(db: &mut Database, d: &Derived, orig: &Task, parent: Option<Id>, after: Option<Id>, now: i64) -> Id {
+    let mut t = orig.clone();
+    t.id = new_id();
+    t.parent_id = parent.clone();
+    t.created_at = now;
+    t.modified_at = now;
+    t.completed_at = None;
+    t.dropped_at = None;
+    t.rank = next_rank(db, parent, after);
+    let id = t.id.clone();
+    db.tasks.insert(id.clone(), t);
+    let mut kids: Vec<Task> = db.tasks.values().filter(|k| k.parent_id.as_deref() == Some(orig.id.as_str()) && k.id != id).cloned().collect();
+    kids.sort_by(|a, b| a.rank.partial_cmp(&b.rank).unwrap_or(std::cmp::Ordering::Equal));
+    let mut prev: Option<Id> = None;
+    for k in kids {
+        let nid = copy_task_tree(db, d, &k, Some(id.clone()), prev.clone(), now);
+        prev = Some(nid);
+    }
+    id
+}
+
 /// Rank placing the item after `after` within sorted `siblings` (id, rank).
 fn rank_after(siblings: &[(Id, f64)], after: Option<Id>) -> f64 {
     if let Some(after) = after {
@@ -1312,5 +1449,80 @@ mod tests {
         let id = s.add_task(NewTaskSpec { name: "x".into(), note: String::new(), parent: None, after: None, project: None, tag_ids: vec![tag], flagged: false, defer_date: None, planned_date: None, due_date: None, estimated_minutes: None, repetition: None });
         let info = s.task_info(id).unwrap();
         assert!(!info.available && info.blocked && info.on_hold);
+    }
+
+    fn spec(name: &str) -> NewTaskSpec {
+        NewTaskSpec { name: name.into(), note: String::new(), parent: None, after: None, project: None, tag_ids: vec![], flagged: false, defer_date: None, planned_date: None, due_date: None, estimated_minutes: None, repetition: None }
+    }
+
+    #[test]
+    fn duplicate_copies_subtree_after_original() {
+        let s = Store::in_memory(false);
+        let p = s.add_project("P".into(), None);
+        let a = s.add_task(NewTaskSpec { project: Some(p.clone()), ..spec("a") });
+        let a1 = s.add_task(NewTaskSpec { parent: Some(a.clone()), ..spec("a1") });
+        let b = s.add_task(NewTaskSpec { project: Some(p.clone()), ..spec("b") });
+        let copies = s.duplicate_items(vec![a.clone()]);
+        assert_eq!(copies.len(), 1);
+        let copy = &copies[0];
+        s.set_perspective(Perspective::Projects);
+        let ids = row_ids(&s.content("".into()));
+        // order: P, a, a1, a', a1', b
+        let pos = |id: &str| ids.iter().position(|x| x == id).unwrap();
+        assert!(pos(&a) < pos(&a1) && pos(&a1) < pos(copy) && pos(copy) < pos(&b));
+        let kids: Vec<Task> = s.with_db(|db| db.tasks.values().filter(|t| t.parent_id.as_deref() == Some(copy.as_str())).cloned().collect());
+        assert_eq!(kids.len(), 1);
+        assert_eq!(kids[0].name, "a1");
+        s.undo();
+        assert!(s.task(copy.clone()).is_none());
+    }
+
+    #[test]
+    fn convert_task_to_project_keeps_children_and_folder() {
+        let s = Store::in_memory(false);
+        let f = s.add_folder("F".into(), None);
+        let p = s.add_project("P".into(), Some(f.clone()));
+        let a = s.add_task(NewTaskSpec { project: Some(p.clone()), flagged: true, ..spec("group") });
+        let a1 = s.add_task(NewTaskSpec { parent: Some(a.clone()), ..spec("child") });
+        let np = s.convert_to_project(a.clone()).unwrap();
+        assert!(s.task(a).is_none());
+        let proj = s.project(np.clone()).unwrap();
+        assert_eq!(proj.name, "group");
+        assert!(proj.flagged);
+        assert_eq!(proj.folder_id, Some(f));
+        assert_eq!(s.task(a1).unwrap().parent_id, Some(np));
+    }
+
+    #[test]
+    fn calendar_events_show_in_forecast_without_counting() {
+        let s = Store::in_memory(false);
+        let mut st = s.settings();
+        st.calendar_feeds.push(CalendarFeed { id: "feed".into(), name: "Work".into(), url: String::new(), enabled: true, color: "#f00".into() });
+        s.update_settings(st);
+        let now = now_ms();
+        s.set_calendar_events(vec![CalendarEvent { id: "e1".into(), feed_id: "feed".into(), title: "Standup".into(), location: String::new(), start: now, end: now + 3_600_000, all_day: false, color: "#f00".into() }]);
+        s.set_perspective(Perspective::Forecast);
+        let today_key = day_key(start_of_day(now));
+        let fm = s.sidebar().forecast.unwrap();
+        assert!(fm.items[&today_key].iter().any(|x| matches!(x, ForecastItem::Event(_))));
+        assert_eq!(fm.days.iter().find(|d| d.key == today_key).unwrap().count, 0);
+        let c = s.content("".into());
+        assert!(c.rows.iter().any(|r| matches!(r, RowData::Event(e) if e.event.title == "Standup")));
+        // disabling the view option hides them
+        let mut vo = s.view_options();
+        vo.forecast_calendar_events = false;
+        s.set_view_options(vo);
+        assert!(!s.content("".into()).rows.iter().any(|r| matches!(r, RowData::Event(_))));
+    }
+
+    #[test]
+    fn due_between_lists_upcoming_items() {
+        let s = Store::in_memory(false);
+        let now = now_ms();
+        let soon = s.add_task(NewTaskSpec { due_date: Some(now + 60_000), ..spec("soon") });
+        let _later = s.add_task(NewTaskSpec { due_date: Some(add_days(now, 3)), ..spec("later") });
+        let due = s.due_between(now, now + 3_600_000);
+        assert_eq!(due.len(), 1);
+        assert_eq!(due[0].id, soon);
     }
 }

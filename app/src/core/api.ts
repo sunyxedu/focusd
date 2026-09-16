@@ -97,6 +97,11 @@ export class Api {
   outdent = (ids: T.ID[]) => this.m('outdent', { ids });
   assignProject = (ids: T.ID[], project: T.ID | null) => this.m('assignProject', { ids, project });
   markReviewed = (ids: T.ID[]) => this.m('markReviewed', { ids });
+  duplicateItems = (ids: T.ID[]) => this.m<T.ID[]>('duplicateItems', { ids });
+  convertToProject = (id: T.ID) => this.m<T.ID | null>('convertToProject', { id });
+  setCalendarEvents = (events: T.CalendarEvent[]) => this.m('setCalendarEvents', { events });
+  calendarEvents = () => this.q<T.CalendarEvent[]>('calendarEvents');
+  dueBetween = (from: number, to: number) => this.q<T.DueItem[]>('dueBetween', { from, to });
   undo = () => this.m<boolean>('undo');
   redo = () => this.m<boolean>('redo');
   resetToTutorial = () => this.m('resetToTutorial');

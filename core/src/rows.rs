@@ -2,7 +2,7 @@
 //! applying view options, sidebar selection, focus, search and collapse state.
 //! Also builds the sidebar model for each perspective.
 use serde::{Deserialize, Serialize};
-use crate::dates::{add_days, day_key, end_of_day, long_date_label, start_of_day, weekday_short, day_of_month};
+use crate::dates::{add_days, day_key, day_of_month, end_of_day, long_date_label, start_of_day, time_label, weekday_short};
 use crate::derive::*;
 use crate::model::*;
 use std::collections::{HashMap, HashSet};
@@ -54,6 +54,17 @@ pub struct HeaderRow {
     pub collapsed: bool,
 }
 
+/// Calendar event row (Forecast only; read-only).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EventRow {
+    pub key: String,
+    pub id: Id,
+    pub depth: u32,
+    pub event: CalendarEvent,
+    pub time_label: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum RowData {
@@ -61,6 +72,7 @@ pub enum RowData {
     Project(ProjectRow),
     Folder(FolderRow),
     Header(HeaderRow),
+    Event(EventRow),
 }
 
 impl RowData {
@@ -70,6 +82,7 @@ impl RowData {
             RowData::Project(r) => &r.key,
             RowData::Folder(r) => &r.key,
             RowData::Header(r) => &r.key,
+            RowData::Event(r) => &r.key,
         }
     }
     pub fn item_id(&self) -> Option<&Id> {
@@ -77,7 +90,7 @@ impl RowData {
             RowData::Task(r) => Some(&r.id),
             RowData::Project(r) => Some(&r.id),
             RowData::Folder(r) => Some(&r.id),
-            RowData::Header(_) => None,
+            RowData::Header(_) | RowData::Event(_) => None,
         }
     }
 }
@@ -460,6 +473,7 @@ pub struct ForecastDay {
 pub enum ForecastItem {
     Task(TaskInfo),
     Project(ProjectInfo),
+    Event(CalendarEvent),
 }
 
 impl ForecastItem {
@@ -467,6 +481,7 @@ impl ForecastItem {
         match self {
             ForecastItem::Task(t) => &t.task.id,
             ForecastItem::Project(p) => &p.project.id,
+            ForecastItem::Event(e) => &e.id,
         }
     }
     /// The date that placed this item in its bucket.
@@ -474,18 +489,21 @@ impl ForecastItem {
         match self {
             ForecastItem::Task(t) => t.effective_due_date.or(t.effective_planned_date).or(t.effective_defer_date),
             ForecastItem::Project(p) => p.project.due_date.or(p.project.planned_date).or(p.project.defer_date),
+            ForecastItem::Event(e) => Some(e.start),
         }
     }
     pub fn name(&self) -> &str {
         match self {
             ForecastItem::Task(t) => &t.task.name,
             ForecastItem::Project(p) => &p.project.name,
+            ForecastItem::Event(e) => &e.title,
         }
     }
     pub fn note(&self) -> &str {
         match self {
             ForecastItem::Task(t) => &t.task.note,
             ForecastItem::Project(p) => &p.project.note,
+            ForecastItem::Event(e) => &e.location,
         }
     }
 }
@@ -498,7 +516,7 @@ pub struct ForecastModel {
 }
 
 /// Items belonging to forecast, keyed by day; used by both sidebar and content.
-pub fn forecast_buckets(_db: &Database, d: &Derived, vo: &ViewOptions) -> ForecastModel {
+pub fn forecast_buckets(db: &Database, d: &Derived, vo: &ViewOptions) -> ForecastModel {
     let now = d.now;
     let today = start_of_day(now);
     let mut days: Vec<ForecastDay> = Vec::new();
@@ -565,11 +583,30 @@ pub fn forecast_buckets(_db: &Database, d: &Derived, vo: &ViewOptions) -> Foreca
             }
         }
     }
+    if vo.forecast_calendar_events {
+        let enabled: std::collections::HashSet<&str> = db.settings.calendar_feeds.iter().filter(|f| f.enabled).map(|f| f.id.as_str()).collect();
+        for e in db.calendar_events.iter().filter(|e| enabled.contains(e.feed_id.as_str())) {
+            // an event appears on every day it spans within the window
+            let mut day = start_of_day(e.start);
+            let last = if e.all_day { start_of_day(e.end - 1) } else { start_of_day(e.end.max(e.start)) };
+            while day <= last {
+                if day >= today && day < add_days(today, 14) {
+                    add(&mut items, &day_key(day), ForecastItem::Event(e.clone()));
+                }
+                day = add_days(day, 1);
+            }
+        }
+    }
     let mut days = days;
     for day in &mut days {
         if let Some(list) = items.get_mut(&day.key) {
-            list.sort_by_key(|x| x.date().unwrap_or(i64::MAX));
-            day.count = list.len() as u32;
+            list.sort_by_key(|x| match x {
+                // events first (as in Focusd, events are listed in time order at the top)
+                ForecastItem::Event(e) => (0, e.start),
+                other => (1, other.date().unwrap_or(i64::MAX)),
+            });
+            // events do not count towards the day badge, matching Focusd
+            day.count = list.iter().filter(|x| !matches!(x, ForecastItem::Event(_))).count() as u32;
         }
     }
     ForecastModel { days, items }
@@ -608,6 +645,10 @@ fn build_forecast(ctx: &Ctx) -> ContentModel {
             match x {
                 ForecastItem::Task(t) => rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, t.task.id), id: t.task.id.clone(), depth: 1, task: t.task.clone(), info: t.clone(), show_project: true, flat: true, collapsed: false })),
                 ForecastItem::Project(p) => rows.push(RowData::Project(ProjectRow { key: format!("{}:{}", key, p.project.id), id: p.project.id.clone(), depth: 1, project: p.project.clone(), info: p.clone(), collapsed: false })),
+                ForecastItem::Event(e) => {
+                    let time_label = if e.all_day { "all-day".to_string() } else { format!("{} – {}", time_label(e.start), time_label(e.end)) };
+                    rows.push(RowData::Event(EventRow { key: format!("{}:ev:{}", key, e.id), id: e.id.clone(), depth: 1, event: e.clone(), time_label }));
+                }
             }
         }
     }

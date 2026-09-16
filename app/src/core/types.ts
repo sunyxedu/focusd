@@ -161,12 +161,53 @@ export interface ViewOptions {
   rowLayout: RowLayout;
 }
 
+export interface CalendarFeed {
+  id: ID;
+  name: string;
+  url: string;
+  enabled: boolean;
+  color: string;
+}
+
+export interface MailDropConfig {
+  enabled: boolean;
+  host: string;
+  port: number;
+  username: string;
+  folder: string;
+  pollMinutes: number;
+  archiveFolder: string;
+}
+
 export interface Settings {
   dueSoonHours: number;
   defaultDueHour: number;
   defaultDeferHour: number;
   weekStartsOn: number;
   showBadges: boolean;
+  notifyDue: boolean;
+  notifyBeforeMinutes: number;
+  appearance: 'system' | 'light' | 'dark';
+  calendarFeeds: CalendarFeed[];
+  mailDrop: MailDropConfig;
+}
+
+export interface CalendarEvent {
+  id: ID;
+  feedId: ID;
+  title: string;
+  location: string;
+  start: number;
+  end: number;
+  allDay: boolean;
+  color: string;
+}
+
+export interface DueItem {
+  id: ID;
+  name: string;
+  due: number;
+  project: string | null;
 }
 
 // ---- content (outline) model ----
@@ -214,7 +255,16 @@ export interface HeaderRow {
   collapsed: boolean;
 }
 
-export type Row = TaskRow | ProjectRow | FolderRow | HeaderRow;
+export interface EventRow {
+  kind: 'event';
+  key: string;
+  id: ID;
+  depth: number;
+  event: CalendarEvent;
+  timeLabel: string;
+}
+
+export type Row = TaskRow | ProjectRow | FolderRow | HeaderRow | EventRow;
 
 export interface ContentModel {
   rows: Row[];
@@ -242,7 +292,7 @@ export interface ForecastDay {
   isToday: boolean;
 }
 
-export type ForecastItem = ({ kind: 'task' } & TaskInfo) | ({ kind: 'project' } & ProjectInfo);
+export type ForecastItem = ({ kind: 'task' } & TaskInfo) | ({ kind: 'project' } & ProjectInfo) | ({ kind: 'event' } & CalendarEvent);
 
 export interface ForecastModel {
   days: ForecastDay[];

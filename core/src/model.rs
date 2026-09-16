@@ -292,6 +292,42 @@ impl Default for ViewOptions {
     }
 }
 
+/// A subscribed calendar feed (ICS URL) shown in Forecast, like the
+/// Calendar integration of Focusd.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CalendarFeed {
+    pub id: Id,
+    pub name: String,
+    pub url: String,
+    pub enabled: bool,
+    /// CSS colour used for the event rows
+    pub color: String,
+}
+
+/// Mail Drop: the host polls an IMAP mailbox and turns each new message
+/// into an Inbox item (subject = name, body = note). The password is kept
+/// in the OS keychain by the host, never in the database.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MailDropConfig {
+    pub enabled: bool,
+    pub host: String,
+    pub port: u16,
+    pub username: String,
+    /// IMAP folder to watch
+    pub folder: String,
+    pub poll_minutes: u32,
+    /// Move processed messages to this folder (empty = mark as read only)
+    pub archive_folder: String,
+}
+
+impl Default for MailDropConfig {
+    fn default() -> Self {
+        Self { enabled: false, host: String::new(), port: 993, username: String::new(), folder: "INBOX".into(), poll_minutes: 5, archive_folder: String::new() }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
@@ -302,12 +338,58 @@ pub struct Settings {
     /// 0 = Sunday, 1 = Monday
     pub week_starts_on: u32,
     pub show_badges: bool,
+    /// Notify when an item becomes due (host schedules the notification)
+    #[serde(default = "default_true")]
+    pub notify_due: bool,
+    /// Also notify this many minutes before the due time
+    #[serde(default)]
+    pub notify_before_minutes: u32,
+    /// 'system' | 'light' | 'dark'
+    #[serde(default = "default_appearance")]
+    pub appearance: String,
+    #[serde(default)]
+    pub calendar_feeds: Vec<CalendarFeed>,
+    #[serde(default)]
+    pub mail_drop: MailDropConfig,
+}
+
+fn default_true() -> bool {
+    true
+}
+fn default_appearance() -> String {
+    "system".into()
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Self { due_soon_hours: 48, default_due_hour: 17, default_defer_hour: 0, week_starts_on: 1, show_badges: true }
+        Self {
+            due_soon_hours: 48,
+            default_due_hour: 17,
+            default_defer_hour: 0,
+            week_starts_on: 1,
+            show_badges: true,
+            notify_due: true,
+            notify_before_minutes: 0,
+            appearance: "system".into(),
+            calendar_feeds: Vec::new(),
+            mail_drop: MailDropConfig::default(),
+        }
     }
+}
+
+/// A calendar event fetched by the host from a subscribed feed; cached in
+/// the database (not undoable) and shown in Forecast.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CalendarEvent {
+    pub id: Id,
+    pub feed_id: Id,
+    pub title: String,
+    pub location: String,
+    pub start: i64,
+    pub end: i64,
+    pub all_day: bool,
+    pub color: String,
 }
 
 /// UI state that is persisted with the database (perspective, sidebar
@@ -346,6 +428,8 @@ pub struct Database {
     pub settings: Settings,
     #[serde(default)]
     pub ui: UiState,
+    #[serde(default)]
+    pub calendar_events: Vec<CalendarEvent>,
 }
 
 impl Database {
@@ -358,7 +442,7 @@ impl Database {
             }
             view_options.insert(p.key().to_string(), vo);
         }
-        Self { version: 1, folders: HashMap::new(), projects: HashMap::new(), tasks: HashMap::new(), tags: HashMap::new(), view_options, settings: Settings::default(), ui: UiState::default() }
+        Self { version: 1, folders: HashMap::new(), projects: HashMap::new(), tasks: HashMap::new(), tags: HashMap::new(), view_options, settings: Settings::default(), ui: UiState::default(), calendar_events: Vec::new() }
     }
 
     pub fn view_options(&self, p: Perspective) -> ViewOptions {
