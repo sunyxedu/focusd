@@ -56,8 +56,8 @@ pub fn parse_message(raw: &[u8]) -> Parsed {
     if subject.is_empty() {
         subject = "(No subject)".into();
     }
-    let body = text_body(&mail).unwrap_or_default();
-    // Mail Drop convention: the first line "--" ends the note (signature cut)
+    let body = text_body(&mail).unwrap_or_default().replace("\r\n", "\n");
+    // Mail Drop convention: the first "-- " line ends the note (signature cut)
     let note = body.split("\n-- \n").next().unwrap_or("").trim().to_string();
     Parsed { name: subject, note, flagged }
 }
