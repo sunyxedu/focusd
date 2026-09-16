@@ -1228,9 +1228,15 @@ fn last_rank<I: Iterator<Item = f64>>(ranks: I) -> f64 {
     ranks.fold(0.0f64, f64::max) + 1000.0
 }
 
+/// `after == Some("")` is the sentinel for "insert as first sibling".
+pub const FIRST: &str = "";
+
 fn next_rank(db: &Database, parent: Option<Id>, after: Option<Id>) -> f64 {
     let mut siblings: Vec<&Task> = db.tasks.values().filter(|t| t.parent_id == parent).collect();
     siblings.sort_by(|a, b| a.rank.partial_cmp(&b.rank).unwrap_or(std::cmp::Ordering::Equal));
+    if after.as_deref() == Some(FIRST) {
+        return siblings.first().map(|s| s.rank - 1000.0).unwrap_or(1000.0);
+    }
     if let Some(after) = after {
         if let Some(idx) = siblings.iter().position(|s| s.id == after) {
             let a = siblings[idx].rank;
@@ -1274,6 +1280,9 @@ fn copy_task_tree(db: &mut Database, d: &Derived, orig: &Task, parent: Option<Id
 
 /// Rank placing the item after `after` within sorted `siblings` (id, rank).
 fn rank_after(siblings: &[(Id, f64)], after: Option<Id>) -> f64 {
+    if after.as_deref() == Some(FIRST) {
+        return siblings.first().map(|(_, r)| r - 1000.0).unwrap_or(1000.0);
+    }
     if let Some(after) = after {
         if let Some(i) = siblings.iter().position(|(id, _)| *id == after) {
             let a = siblings[i].1;
@@ -1508,6 +1517,22 @@ mod tests {
 
     fn spec(name: &str) -> NewTaskSpec {
         NewTaskSpec { name: name.into(), note: String::new(), parent: None, after: None, project: None, tag_ids: vec![], flagged: false, defer_date: None, planned_date: None, due_date: None, estimated_minutes: None, repetition: None }
+    }
+
+    #[test]
+    fn move_with_first_sentinel_inserts_at_top() {
+        let s = Store::in_memory(false);
+        let p = s.add_project("P".into(), None);
+        let a = s.add_task(NewTaskSpec { project: Some(p.clone()), ..spec("a") });
+        let b = s.add_task(NewTaskSpec { project: Some(p.clone()), ..spec("b") });
+        s.move_tasks(vec![b.clone()], Some(p.clone()), Some(FIRST.to_string()));
+        s.set_perspective(Perspective::Projects);
+        let ids = row_ids(&s.content("".into()));
+        assert_eq!(ids, vec![p.clone(), b, a]);
+        let q = s.add_project("Q".into(), None);
+        s.move_project(q.clone(), None, Some(FIRST.to_string()));
+        let ids = row_ids(&s.content("".into()));
+        assert_eq!(ids[0], q);
     }
 
     #[test]

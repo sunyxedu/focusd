@@ -80,7 +80,19 @@ export function Commands() {
       if (cmd === 'export') void exportDatabase();
       else if (cmd === 'import') void importDatabase();
       else if (cmd === 'help') setHelp(true);
-      // 'duplicate' / 'convertToProject' need core support (not yet available).
+      else if (cmd === 'duplicate') {
+        const ids = store.ui.selection;
+        if (ids.length) void store.api.duplicateItems(ids).then((copies) => store.select(copies));
+      } else if (cmd === 'convertToProject') {
+        const id = store.ui.selection.find((x) => store.snapshot?.tasks[x]);
+        if (id) {
+          void store.api.convertToProject(id).then(async (pid) => {
+            if (!pid) return;
+            await store.goToPerspective('projects');
+            await store.api.setSidebarSelection([pid]);
+          });
+        }
+      }
     };
     window.addEventListener('focus:command', on);
     return () => window.removeEventListener('focus:command', on);
