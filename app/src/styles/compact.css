@@ -480,7 +480,10 @@ body[data-layout='regular'] .inspector {
   z-index: 30;
   box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
 }
-@media (max-width: 900px) {
+body[data-layout='regular'] .sidebar {
+  width: 280px;
+}
+@media (max-width: 780px) {
   body[data-layout='regular'] .sidebar {
     position: absolute;
     top: 0;
