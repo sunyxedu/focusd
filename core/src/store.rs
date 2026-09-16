@@ -138,6 +138,12 @@ impl Store {
 
     // ---------------- queries ----------------
 
+    /// Read-only access to the whole database under the lock.
+    pub fn with_db<R>(&self, f: impl FnOnce(&Database) -> R) -> R {
+        let inner = self.inner.lock().unwrap();
+        f(&inner.db)
+    }
+
     pub fn content(&self, search: String) -> ContentModel {
         let inner = self.inner.lock().unwrap();
         let d = derive_all(&inner.db, now_ms());

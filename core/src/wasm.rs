@@ -1,6 +1,9 @@
 //! wasm-bindgen shell for the web build. The store lives in memory; the
 //! page persists `exportJson` output (IndexedDB / localStorage) and feeds it
 //! back through `importJson` on load.
+// `#[wasm_bindgen]` expands to `unsafe extern` glue; none of the hand-written
+// code here is unsafe.
+#![allow(unsafe_code)]
 use crate::bridge::dispatch;
 use crate::store::Store;
 use std::sync::Arc;

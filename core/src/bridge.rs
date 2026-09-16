@@ -11,6 +11,7 @@ use crate::store::*;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::{json, Value};
+use std::collections::HashMap;
 
 fn arg<T: DeserializeOwned>(args: &Value, key: &str) -> Result<T, String> {
     let v = args.get(key).cloned().unwrap_or(Value::Null);
@@ -44,6 +45,14 @@ pub struct Snapshot {
     pub can_undo: bool,
     pub can_redo: bool,
     pub now: i64,
+    /// Raw entities so the UI can look anything up by id without a call.
+    pub tasks: HashMap<Id, Task>,
+    pub projects: HashMap<Id, Project>,
+    pub folders: HashMap<Id, Folder>,
+    pub tags: HashMap<Id, Tag>,
+    pub tag_list: Vec<TagListEntry>,
+    pub project_list: Vec<ProjectListEntry>,
+    pub ui: UiState,
 }
 
 impl Store {
@@ -67,6 +76,13 @@ impl Store {
             can_undo: self.can_undo(),
             can_redo: self.can_redo(),
             now: now_ms(),
+            tasks: self.with_db(|db| db.tasks.clone()),
+            projects: self.with_db(|db| db.projects.clone()),
+            folders: self.with_db(|db| db.folders.clone()),
+            tags: self.with_db(|db| db.tags.clone()),
+            tag_list: self.tag_list(),
+            project_list: self.project_list(),
+            ui: self.with_db(|db| db.ui.clone()),
         }
     }
 }

@@ -1,0 +1,26 @@
+[package]
+name = "focus-desktop"
+version = "0.1.0"
+edition = "2021"
+description = "Native shell (macOS / Windows / Linux / iOS / Android) for the Focus app"
+
+[lib]
+name = "focus_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+hemlixfocus_core = { path = "../core" }
+tauri = { version = "2", features = ["devtools"] }
+tauri-plugin-window-state = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-deep-link = "2"
+tauri-plugin-os = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
