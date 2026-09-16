@@ -1,6 +1,6 @@
-name: focus-desktop
+name: focusd
 options:
-  bundleIdPrefix: dev.hemlix.focus
+  bundleIdPrefix: dev.hemlix.focusd
   deploymentTarget:
     iOS: 15.0
 fileGroups: [../../src]
@@ -10,8 +10,8 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: Focus
-      PRODUCT_BUNDLE_IDENTIFIER: dev.hemlix.focus
+      PRODUCT_NAME: Focusd
+      PRODUCT_BUNDLE_IDENTIFIER: dev.hemlix.focusd
 targetTemplates:
   app:
     type: application
@@ -24,20 +24,20 @@ targetTemplates:
     settings:
       groups: [app]
 targets:
-  focus-desktop_iOS:
+  focusd_iOS:
     type: application
     platform: iOS
     sources:
       - path: Sources
       - path: Assets.xcassets
       - path: Externals
-      - path: focus-desktop_iOS
+      - path: focusd_iOS
       - path: assets
         buildPhase: resources
         type: folder
       - path: LaunchScreen.storyboard
     info:
-      path: focus-desktop_iOS/Info.plist
+      path: focusd_iOS/Info.plist
       properties:
         LSRequiresIPhoneOS: true
         UILaunchStoryboardName: LaunchScreen
@@ -54,7 +54,7 @@ targets:
         CFBundleShortVersionString: 0.1.0
         CFBundleVersion: "0.1.0"
     entitlements:
-      path: focus-desktop_iOS/focus-desktop_iOS.entitlements
+      path: focusd_iOS/focusd_iOS.entitlements
     scheme:
       environmentVariables:
         RUST_BACKTRACE: full

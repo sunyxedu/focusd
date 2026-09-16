@@ -3,7 +3,7 @@
 //! pieces a web page cannot: window state, menu bar, deep links,
 //! notifications and the on-disk database.
 #![forbid(unsafe_code)]
-use hemlixfocus_core::{dispatch, Store};
+use focusd_core::{dispatch, Store};
 use serde_json::Value;
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter, Manager, State};
@@ -43,7 +43,7 @@ fn mail_drop_has_password(username: String) -> bool {
 }
 
 #[tauri::command]
-async fn mail_drop_test(config: hemlixfocus_core::MailDropConfig) -> Result<String, String> {
+async fn mail_drop_test(config: focusd_core::MailDropConfig) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || maildrop::test(&config)).await.map_err(|e| e.to_string())?
 }
 
@@ -57,7 +57,7 @@ fn db_path(app: &AppHandle) -> Result<std::path::PathBuf, String> {
     Ok(dir.join("database.json"))
 }
 
-/// Handle `focus://add?name=...&note=...&due=...` style URLs (Quick Entry
+/// Handle `focusd://add?name=...&note=...&due=...` style URLs (Quick Entry
 /// from other apps, e.g. a mail client's "send to inbox" rule).
 fn handle_urls(app: &AppHandle, urls: Vec<String>) {
     for url in urls {

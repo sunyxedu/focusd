@@ -4,7 +4,7 @@
 //! rolling window and hands the resulting `CalendarEvent`s to the core,
 //! which merges them into the Forecast buckets.
 use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, TimeZone, Utc};
-use hemlixfocus_core::{CalendarEvent, CalendarFeed, Store};
+use focusd_core::{CalendarEvent, CalendarFeed, Store};
 use ical::parser::ical::component::IcalEvent;
 use ical::property::Property;
 use rrule::{RRuleSet, Tz};
@@ -157,7 +157,7 @@ fn window() -> (i64, i64) {
 /// skipped so one broken subscription never hides the others.
 pub fn fetch_all(feeds: &[CalendarFeed]) -> Vec<CalendarEvent> {
     let (ws, we) = window();
-    let client = reqwest::blocking::Client::builder().timeout(Duration::from_secs(20)).user_agent("Focus/0.1").build();
+    let client = reqwest::blocking::Client::builder().timeout(Duration::from_secs(20)).user_agent("Focusd/0.1").build();
     let Ok(client) = client else { return vec![] };
     let mut out = Vec::new();
     for feed in feeds.iter().filter(|f| f.enabled && !f.url.trim().is_empty()) {

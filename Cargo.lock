@@ -1156,12 +1156,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "focus-desktop"
+name = "focusd"
 version = "0.1.0"
 dependencies = [
  "chrono",
  "chrono-tz",
- "hemlixfocus_core",
+ "focusd_core",
  "ical",
  "imap",
  "keyring",
@@ -1181,6 +1181,19 @@ dependencies = [
  "tauri-plugin-os",
  "tauri-plugin-window-state",
  "url",
+]
+
+[[package]]
+name = "focusd_core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "getrandom 0.2.17",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1645,19 +1658,6 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
-
-[[package]]
-name = "hemlixfocus_core"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "getrandom 0.2.17",
- "rand 0.8.8",
- "serde",
- "serde_json",
- "tempfile",
- "wasm-bindgen",
-]
 
 [[package]]
 name = "hermit-abi"

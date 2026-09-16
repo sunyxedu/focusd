@@ -9,7 +9,7 @@ fn item<R: Runtime>(app: &AppHandle<R>, id: &str, label: &str, accel: Option<&st
 }
 
 pub fn install<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
-    let app_name = "Focus";
+    let app_name = "Focusd";
     let about = AboutMetadata { name: Some(app_name.into()), ..Default::default() };
 
     let app_menu = Submenu::with_items(app, app_name, true, &[

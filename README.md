@@ -1,4 +1,4 @@
-# Focus
+# Focusd
 
 A faithful, open recreation of **Focusd** — every perspective, behaviour
 and interaction, everything except the icons — that runs from one codebase on
@@ -15,7 +15,7 @@ and interaction, everything except the icons — that runs from one codebase on
   the iPhone and iPad layouts of Focusd for iOS and a dark appearance.
 - Tauri 2 (`desktop/`) hosts it natively: real window with the toolbar in
   the title bar, native menu bar with every Focusd menu and shortcut,
-  window-state restore, deep links (`focus://add?name=…`), system
+  window-state restore, deep links (`focusd://add?name=…`), system
   notifications, calendar feeds in Forecast, and **Mail Drop** over IMAP.
   The same host builds the iOS / iPadOS app.
 - The web build runs the identical core compiled to WebAssembly, persisting
@@ -44,14 +44,14 @@ calendar feeds, Mail Drop and appearance.
 |---|---|
 | **Mail Drop** | Point the app at an IMAP folder (a dedicated Gmail label, a `+focus` sub-address…). Unread mail becomes Inbox items: subject → name, body → note, `!` prefix → flagged. Password stays in the OS keychain. |
 | **Calendar** | Subscribe to ICS / webcal feeds; events (including recurring ones) appear on their days in Forecast. |
-| **URL scheme** | `focus://add?name=Buy%20milk&note=2%20litres&flag=1` from any app or a mail rule. |
+| **URL scheme** | `focusd://add?name=Buy%20milk&note=2%20litres&flag=1` from any app or a mail rule. |
 | **Notifications** | System notifications when items come due, optionally N minutes ahead (browser notifications on the web). |
 
 ## Building
 
 ```bash
 # core
-cargo test -p hemlixfocus_core
+cargo test -p focusd_core
 
 # web (wasm core)
 rustup target add wasm32-unknown-unknown && cargo install wasm-bindgen-cli

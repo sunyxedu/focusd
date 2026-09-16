@@ -33,8 +33,8 @@ ref/       Screenshots of the real Focusd used as the visual spec.
 ## Commands
 
 ```bash
-cargo test -p hemlixfocus_core             # core behaviour tests
-cargo clippy -p hemlixfocus_core -- -D warnings
+cargo test -p focusd_core             # core behaviour tests
+cargo clippy -p focusd_core -- -D warnings
 ./scripts/build-wasm.sh                    # needs wasm-bindgen-cli
 cd app && npm install && npm run dev       # web build at :5180 (wasm core)
 cd app && npm run typecheck && npm run build

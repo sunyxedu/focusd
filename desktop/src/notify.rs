@@ -1,7 +1,7 @@
 //! Due notifications: a background ticker asks the core which items come
 //! due in the next minute (and, optionally, `notify_before_minutes` ahead)
 //! and posts a system notification for each, once.
-use hemlixfocus_core::{DueItem, Store};
+use focusd_core::{DueItem, Store};
 use std::collections::HashSet;
 use std::sync::Arc;
 use std::time::Duration;
@@ -48,7 +48,7 @@ pub fn start(app: AppHandle) {
             let mut seen: HashSet<(String, i64, bool)> = HashSet::new();
             loop {
                 let store: Arc<Store> = app.state::<crate::CoreState>().0.clone();
-                let now = hemlixfocus_core::dates::now_ms();
+                let now = focusd_core::dates::now_ms();
                 tick(&app, &store, &mut seen, now);
                 if seen.len() > 10_000 {
                     seen.clear();

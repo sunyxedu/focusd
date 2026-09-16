@@ -6,12 +6,12 @@
 //! subject → name, plain-text body → note. Messages are then marked read
 //! and optionally moved to an archive folder. The password lives in the OS
 //! keychain (macOS Keychain / Windows Credential Manager / Secret Service).
-use hemlixfocus_core::{dispatch, MailDropConfig, Store};
+use focusd_core::{dispatch, MailDropConfig, Store};
 use std::sync::Arc;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 
-const KEYRING_SERVICE: &str = "dev.hemlix.focus.maildrop";
+const KEYRING_SERVICE: &str = "dev.hemlix.focusdd.maildrop";
 
 fn entry(username: &str) -> Result<keyring::Entry, String> {
     keyring::Entry::new(KEYRING_SERVICE, username).map_err(|e| e.to_string())

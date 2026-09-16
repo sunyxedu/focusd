@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "813F0C31B22A323EF66DD42C"
-               BuildableName = "focus-desktop_iOS.app"
-               BlueprintName = "focus-desktop_iOS"
-               ReferencedContainer = "container:focus-desktop.xcodeproj">
+               BlueprintIdentifier = "B66F03277716B9A1201AA96B"
+               BuildableName = "focusd_iOS.app"
+               BlueprintName = "focusd_iOS"
+               ReferencedContainer = "container:focusd.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "813F0C31B22A323EF66DD42C"
-            BuildableName = "focus-desktop_iOS.app"
-            BlueprintName = "focus-desktop_iOS"
-            ReferencedContainer = "container:focus-desktop.xcodeproj">
+            BlueprintIdentifier = "B66F03277716B9A1201AA96B"
+            BuildableName = "focusd_iOS.app"
+            BlueprintName = "focusd_iOS"
+            ReferencedContainer = "container:focusd.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -69,10 +69,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "813F0C31B22A323EF66DD42C"
-            BuildableName = "focus-desktop_iOS.app"
-            BlueprintName = "focus-desktop_iOS"
-            ReferencedContainer = "container:focus-desktop.xcodeproj">
+            BlueprintIdentifier = "B66F03277716B9A1201AA96B"
+            BuildableName = "focusd_iOS.app"
+            BlueprintName = "focusd_iOS"
+            ReferencedContainer = "container:focusd.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -100,10 +100,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "813F0C31B22A323EF66DD42C"
-            BuildableName = "focus-desktop_iOS.app"
-            BlueprintName = "focus-desktop_iOS"
-            ReferencedContainer = "container:focus-desktop.xcodeproj">
+            BlueprintIdentifier = "B66F03277716B9A1201AA96B"
+            BuildableName = "focusd_iOS.app"
+            BlueprintName = "focusd_iOS"
+            ReferencedContainer = "container:focusd.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>

@@ -1,10 +1,10 @@
 [package]
-name = "hemlixfocus_core"
+name = "focusd_core"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "hemlixfocus_core"
+name = "focusd_core"
 crate-type = ["lib", "cdylib"]
 
 [features]

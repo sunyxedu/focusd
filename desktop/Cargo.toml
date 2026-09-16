@@ -1,18 +1,18 @@
 [package]
-name = "focus-desktop"
+name = "focusd"
 version = "0.1.0"
 edition = "2021"
 description = "Native shell (macOS / Windows / Linux / iOS / Android) for the Focus app"
 
 [lib]
-name = "focus_desktop_lib"
+name = "focusd_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-hemlixfocus_core = { path = "../core" }
+focusd_core = { path = "../core" }
 tauri = { version = "2", features = ["devtools"] }
 
 tauri-plugin-fs = "2"

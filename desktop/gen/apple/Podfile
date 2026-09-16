@@ -1,13 +1,13 @@
 # Uncomment the next line to define a global platform for your project
 
-target 'focus-desktop_iOS' do
+target 'focusd_iOS' do
 platform :ios, '15.0'
-  # Pods for focus-desktop_iOS
+  # Pods for focusd_iOS
 end
 
-target 'focus-desktop_macOS' do
+target 'focusd_macOS' do
 platform :osx, '11.0'
-  # Pods for focus-desktop_macOS
+  # Pods for focusd_macOS
 end
 
 # Delete the deployment target for iOS and macOS, causing it to be inherited from the Podfile

@@ -84,7 +84,7 @@ class WasmBackend implements Backend {
   private lastSaved = -1;
 
   async init() {
-    const wasm = await import('../../wasm/hemlixfocus_core.js');
+    const wasm = await import('../../wasm/focusd_core.js');
     await wasm.default();
     const saved = await idbGet();
     this.store = new wasm.WasmStore(true, saved ?? undefined);
