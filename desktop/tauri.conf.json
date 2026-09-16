@@ -6,8 +6,15 @@
   "build": {
     "frontendDist": "../app/dist",
     "devUrl": "http://localhost:5180",
-    "beforeDevCommand": "sh -c 'cd \"$(git rev-parse --show-toplevel)/app\" && npm run dev'",
-    "beforeBuildCommand": "sh -c 'cd \"$(git rev-parse --show-toplevel)/app\" && npm run build'"
+    "beforeDevCommand": {
+      "script": "npm run dev",
+      "cwd": "../app",
+      "wait": false
+    },
+    "beforeBuildCommand": {
+      "script": "npm run build",
+      "cwd": "../app"
+    }
   },
   "app": {
     "withGlobalTauri": false,
