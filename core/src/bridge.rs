@@ -25,6 +25,18 @@ fn opt<T: DeserializeOwned>(args: &Value, key: &str) -> Result<Option<T>, String
     }
 }
 
+/// Tri-state argument: absent/null = leave unchanged; `{"v": x}` = set to x
+/// (x may be null to clear).
+fn tri<T: DeserializeOwned>(args: &Value, key: &str) -> Result<Option<Option<T>>, String> {
+    match args.get(key) {
+        None | Some(Value::Null) => Ok(None),
+        Some(v) => match v.get("v") {
+            None | Some(Value::Null) => Ok(Some(None)),
+            Some(x) => serde_json::from_value(x.clone()).map(|x| Some(Some(x))).map_err(|e| format!("bad argument `{}`: {}", key, e)),
+        },
+    }
+}
+
 fn ok<T: Serialize>(v: T) -> Result<Value, String> {
     serde_json::to_value(v).map_err(|e| e.to_string())
 }
@@ -51,6 +63,7 @@ pub struct Snapshot {
     pub folders: HashMap<Id, Folder>,
     pub tags: HashMap<Id, Tag>,
     pub tag_list: Vec<TagListEntry>,
+    pub tag_counts: HashMap<Id, crate::derive::TagCounts>,
     pub project_list: Vec<ProjectListEntry>,
     pub ui: UiState,
 }
@@ -81,6 +94,7 @@ impl Store {
             folders: self.with_db(|db| db.folders.clone()),
             tags: self.with_db(|db| db.tags.clone()),
             tag_list: self.tag_list(),
+            tag_counts: self.tag_counts(),
             project_list: self.project_list(),
             ui: self.with_db(|db| db.ui.clone()),
         }
@@ -143,6 +157,10 @@ pub fn dispatch(store: &Store, method: &str, args: &Value) -> Result<Value, Stri
         "dropItems" => ok(store.drop_items(arg(a, "ids")?)),
         "setProjectStatus" => ok(store.set_project_status(arg(a, "id")?, arg(a, "status")?)),
         "setProjectType" => ok(store.set_project_type(arg(a, "id")?, arg(a, "projectType")?)),
+        "setNextReview" => ok(store.set_next_review(arg(a, "id")?, opt(a, "at")?)),
+        "setDatesForItems" => ok(store.set_dates_for_items(arg(a, "ids")?, tri(a, "defer")?, tri(a, "planned")?, tri(a, "due")?)),
+        "setTagsForItems" => ok(store.set_tags_for_items(arg(a, "ids")?, arg(a, "tagIds")?)),
+        "tagCounts" => ok(store.tag_counts()),
         "setReviewInterval" => ok(store.set_review_interval(arg(a, "id")?, arg(a, "interval")?)),
         "setTagStatus" => ok(store.set_tag_status(arg(a, "id")?, arg(a, "status")?)),
         "setTagAllowsNextAction" => ok(store.set_tag_allows_next_action(arg(a, "id")?, arg(a, "value")?)),
@@ -210,5 +228,10 @@ mod tests {
         let snap = dispatch(&store, "snapshot", &json!({ "search": "" })).unwrap();
         assert_eq!(snap["badges"]["inbox"], 1);
         assert!(dispatch(&store, "nope", &json!({})).is_err());
+        // tri-state batch dates: set due, leave defer untouched, then clear due
+        dispatch(&store, "setDatesForItems", &json!({ "ids": [id], "due": { "v": 1000 } })).unwrap();
+        assert_eq!(dispatch(&store, "task", &json!({ "id": id })).unwrap()["dueDate"], 1000);
+        dispatch(&store, "setDatesForItems", &json!({ "ids": [id], "due": { "v": null } })).unwrap();
+        assert_eq!(dispatch(&store, "task", &json!({ "id": id })).unwrap()["dueDate"], Value::Null);
     }
 }

@@ -687,6 +687,61 @@ impl Store {
         });
     }
 
+    pub fn set_next_review(&self, id: String, at: Option<i64>) {
+        self.mutate(|db| {
+            if let Some(p) = db.projects.get_mut(&id) {
+                p.next_review_at = at;
+                p.modified_at = now_ms();
+            }
+        });
+    }
+
+    /// Batch date edit as a single undo step. `None` fields are left as-is;
+    /// pass `Some(None)` to clear.
+    pub fn set_dates_for_items(&self, ids: Vec<String>, defer: Option<Option<i64>>, planned: Option<Option<i64>>, due: Option<Option<i64>>) {
+        let now = now_ms();
+        self.mutate(|db| {
+            for id in &ids {
+                if let Some(t) = db.tasks.get_mut(id) {
+                    if let Some(v) = defer { t.defer_date = v; }
+                    if let Some(v) = planned { t.planned_date = v; }
+                    if let Some(v) = due { t.due_date = v; }
+                    t.modified_at = now;
+                } else if let Some(p) = db.projects.get_mut(id) {
+                    if let Some(v) = defer { p.defer_date = v; }
+                    if let Some(v) = planned { p.planned_date = v; }
+                    if let Some(v) = due { p.due_date = v; }
+                    p.modified_at = now;
+                }
+            }
+        });
+    }
+
+    /// Batch tag edit as a single undo step.
+    pub fn set_tags_for_items(&self, ids: Vec<String>, tag_ids: Vec<String>) {
+        let now = now_ms();
+        self.mutate(|db| {
+            for id in &ids {
+                if let Some(t) = db.tasks.get_mut(id) {
+                    t.tag_ids = tag_ids.clone();
+                    t.modified_at = now;
+                } else if let Some(p) = db.projects.get_mut(id) {
+                    p.tag_ids = tag_ids.clone();
+                    p.modified_at = now;
+                }
+            }
+        });
+    }
+
+    /// Available / remaining counts per tag id (plus "untagged").
+    pub fn tag_counts(&self) -> HashMap<String, crate::derive::TagCounts> {
+        let inner = self.inner.lock().unwrap();
+        let d = derive_all(&inner.db, now_ms());
+        let mut m: HashMap<String, crate::derive::TagCounts> = d.tag_task_counts.iter().map(|(k, v)| (k.clone(), *v)).collect();
+        m.insert("untagged".into(), d.untagged_count);
+        m
+    }
+
     pub fn set_review_interval(&self, id: String, iv: ReviewInterval) {
         self.mutate(|db| {
             if let Some(p) = db.projects.get_mut(&id) {

@@ -73,6 +73,11 @@ export class Api {
   dropItems = (ids: T.ID[]) => this.m('dropItems', { ids });
   setProjectStatus = (id: T.ID, status: T.ProjectStatus) => this.m('setProjectStatus', { id, status });
   setProjectType = (id: T.ID, projectType: T.ProjectType) => this.m('setProjectType', { id, projectType });
+  setNextReview = (id: T.ID, at: number | null) => this.m('setNextReview', { id, at });
+  /** Batch edit; `undefined` leaves a field unchanged, `null` clears it. */
+  setDatesForItems = (ids: T.ID[], dates: { defer?: number | null; planned?: number | null; due?: number | null }) =>
+    this.m('setDatesForItems', { ids, defer: dates.defer === undefined ? null : { v: dates.defer }, planned: dates.planned === undefined ? null : { v: dates.planned }, due: dates.due === undefined ? null : { v: dates.due } });
+  setTagsForItems = (ids: T.ID[], tagIds: T.ID[]) => this.m('setTagsForItems', { ids, tagIds });
   setReviewInterval = (id: T.ID, interval: T.ReviewInterval) => this.m('setReviewInterval', { id, interval });
   setTagStatus = (id: T.ID, status: T.TagStatus) => this.m('setTagStatus', { id, status });
   setTagAllowsNextAction = (id: T.ID, value: boolean) => this.m('setTagAllowsNextAction', { id, value });

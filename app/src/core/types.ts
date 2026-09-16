@@ -133,6 +133,11 @@ export interface ProjectInfo {
   needsReview: boolean;
 }
 
+export interface TagCounts {
+  available: number;
+  remaining: number;
+}
+
 export interface Badges {
   inbox: number;
   forecast: number;
@@ -350,6 +355,8 @@ export interface Snapshot {
   folders: Record<ID, Folder>;
   tags: Record<ID, Tag>;
   tagList: TagListEntry[];
+  /** tag id (or "untagged") → counts */
+  tagCounts: Record<string, TagCounts>;
   projectList: ProjectListEntry[];
   ui: UiState;
 }
