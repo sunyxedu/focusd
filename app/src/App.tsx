@@ -40,6 +40,7 @@ export function App() {
   const [quickEntry, setQuickEntry] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.classList.toggle('tauri', isTauri());
@@ -144,6 +145,10 @@ export function App() {
     void import('@tauri-apps/api/event').then(({ listen }) => {
       void listen<string>('menu', (e) => void run(e.payload as Command)).then((u) => unlisten.push(u));
       void listen('core-changed', () => void store.refresh()).then((u) => unlisten.push(u));
+      void listen<string>('mail-drop', (e) => {
+        setToast(e.payload);
+        window.setTimeout(() => setToast(null), 4000);
+      }).then((u) => unlisten.push(u));
     });
     return () => unlisten.forEach((u) => u());
   }, [run]);
@@ -214,6 +219,7 @@ export function App() {
       {quickEntry && <QuickEntry onClose={() => setQuickEntry(false)} />}
       {quickOpen && <QuickOpen onClose={() => setQuickOpen(false)} />}
       {settings && <SettingsModal onClose={() => setSettings(false)} />}
+      {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   );
 }
