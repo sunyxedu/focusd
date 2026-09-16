@@ -3,7 +3,7 @@
 //! The host downloads every enabled feed, expands recurring events inside a
 //! rolling window and hands the resulting `CalendarEvent`s to the core,
 //! which merges them into the Forecast buckets.
-use chrono::{DateTime, Datelike, Local, NaiveDate, NaiveDateTime, TimeZone, Utc};
+use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, TimeZone, Utc};
 use hemlixfocus_core::{CalendarEvent, CalendarFeed, Store};
 use ical::parser::ical::component::IcalEvent;
 use ical::property::Property;
@@ -85,10 +85,7 @@ fn expand(ev: &IcalEvent, feed: &CalendarFeed, win_start: i64, win_end: i64) -> 
 
     // Build an iCalendar snippet the rrule crate understands.
     let tz: Tz = if start.all_day || param(start_p, "TZID").is_none() { Tz::LOCAL } else { param(start_p, "TZID").and_then(|t| t.parse::<chrono_tz::Tz>().ok()).map(Tz::Tz).unwrap_or(Tz::LOCAL) };
-    let dt_start: DateTime<Tz> = match tz {
-        Tz::Tz(z) => z.timestamp_millis_opt(start.ms).single().map(Tz::from_datetime_tz).unwrap_or_else(|| Tz::LOCAL.timestamp_millis_opt(start.ms).single().unwrap_or_else(|| Tz::LOCAL.timestamp_millis_opt(0).unwrap())),
-        _ => Tz::LOCAL.timestamp_millis_opt(start.ms).single().unwrap_or_else(|| Tz::LOCAL.timestamp_millis_opt(0).unwrap()),
-    };
+    let Some(dt_start): Option<DateTime<Tz>> = tz.timestamp_millis_opt(start.ms).single() else { return vec![] };
     let mut set = RRuleSet::new(dt_start);
     let mut text = format!("RRULE:{}\n", rule);
     for ex in ev.properties.iter().filter(|p| p.name.eq_ignore_ascii_case("EXDATE")) {
@@ -153,7 +150,6 @@ fn parse_feed(text: &str, feed: &CalendarFeed, win_start: i64, win_end: i64) -> 
 fn window() -> (i64, i64) {
     let today = Local::now().date_naive();
     let start = Local.from_local_datetime(&today.and_hms_opt(0, 0, 0).unwrap()).single().map(|d| d.timestamp_millis()).unwrap_or(0);
-    let _ = today.year();
     (start - WINDOW_PAST_DAYS * 86_400_000, start + WINDOW_FUTURE_DAYS * 86_400_000)
 }
 
