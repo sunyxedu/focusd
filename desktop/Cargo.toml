@@ -24,3 +24,13 @@ tauri-plugin-os = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 url = "2"
+# integrations
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking"] }
+ical = "0.11"
+rrule = "0.14"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+chrono-tz = "0.10"
+imap = { version = "3.0.0-alpha.15", default-features = false, features = ["rustls-tls"] }
+mailparse = "0.17"
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }
+log = "0.4"

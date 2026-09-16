@@ -46,6 +46,8 @@ export class AppStore {
   private listeners = new Set<Listener>();
   private refreshing = false;
   private refreshQueued = false;
+  /** bumped on every mutation; a refresh only prunes selection if no newer mutation happened meanwhile */
+  private mutationSeq = 0;
   private ready: Promise<void>;
 
   constructor() {
@@ -71,6 +73,7 @@ export class AppStore {
   private emit() { for (const l of this.listeners) l(); }
 
   private afterMutation() {
+    this.mutationSeq++;
     void this.refresh();
     void this.backend.persist();
   }
@@ -79,15 +82,19 @@ export class AppStore {
   async refresh() {
     if (this.refreshing) { this.refreshQueued = true; return; }
     this.refreshing = true;
+    const seq = this.mutationSeq;
     try {
       const snap = await this.api.snapshot(this.ui.search);
       this.snapshot = snap;
-      // prune selection to rows that still exist
-      const ids = new Set<ID>();
-      for (const r of snap.content.rows) if (r.kind !== 'header') ids.add(r.id);
-      for (const r of snap.sidebar.rows) if (r.id) ids.add(r.id);
-      const sel = this.ui.selection.filter((id) => ids.has(id));
-      if (sel.length !== this.ui.selection.length) this.ui = { ...this.ui, selection: sel };
+      // prune selection to rows that still exist — but only if this snapshot
+      // is current (a mutation during the fetch may have created the id)
+      if (seq === this.mutationSeq) {
+        const ids = new Set<ID>();
+        for (const r of snap.content.rows) if (r.kind !== 'header' && r.kind !== 'event') ids.add(r.id);
+        for (const r of snap.sidebar.rows) if (r.id) ids.add(r.id);
+        const sel = this.ui.selection.filter((id) => ids.has(id));
+        if (sel.length !== this.ui.selection.length) this.ui = { ...this.ui, selection: sel };
+      }
       this.emit();
     } finally {
       this.refreshing = false;

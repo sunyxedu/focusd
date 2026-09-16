@@ -131,6 +131,7 @@ export interface ProjectInfo {
   remainingCount: number;
   availableCount: number;
   needsReview: boolean;
+  hasChildren: boolean;
 }
 
 export interface TagCounts {
@@ -227,6 +228,7 @@ export interface TaskRow {
   showProject: boolean;
   flat: boolean;
   collapsed: boolean;
+  repeatLabel: string | null;
 }
 
 export interface ProjectRow {
@@ -237,6 +239,7 @@ export interface ProjectRow {
   project: Project;
   info: ProjectInfo;
   collapsed: boolean;
+  repeatLabel: string | null;
 }
 
 export interface FolderRow {

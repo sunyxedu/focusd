@@ -52,6 +52,8 @@ pub struct ProjectInfo {
     pub remaining_count: u32,
     pub available_count: u32,
     pub needs_review: bool,
+    #[serde(default)]
+    pub has_children: bool,
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
@@ -258,6 +260,7 @@ pub fn derive_all(db: &Database, now: i64) -> Derived {
                 remaining_count: 0,
                 available_count: 0,
                 needs_review: remaining && (p.next_review_at.is_none() || p.next_review_at.unwrap() <= end_of_day(now)),
+                has_children: children_of.get(&p.id).map(|v| !v.is_empty()).unwrap_or(false),
             },
         );
     }

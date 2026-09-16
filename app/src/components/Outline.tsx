@@ -47,15 +47,6 @@ export function requestNameFocus(id: ID) {
 
 const PERSPECTIVE_COLOR: Record<Perspective, string> = Object.fromEntries(PERSPECTIVE_META.map((m) => [m.id, m.color])) as Record<Perspective, string>;
 
-/** Presentation of a repeat rule (mirrors core/src/repeat.rs describe_rule). */
-function describeRule(rule: RepetitionRule): string {
-  const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const every = rule.every <= 1 ? `Every ${rule.unit}` : `Every ${rule.every} ${rule.unit}s`;
-  const days = rule.unit === 'week' && rule.weekdays.length ? ` on ${rule.weekdays.map((d) => WD[d]).join(', ')}` : '';
-  const method = rule.method === 'startAfterCompletion' ? ' (defer another)' : rule.method === 'dueAfterCompletion' ? ' (due again)' : '';
-  return every + days + method;
-}
-
 function atHour(dayMs: number, hour: number): number {
   const d = new Date(dayMs);
   d.setHours(hour, 0, 0, 0);
@@ -482,10 +473,10 @@ const RowView = React.memo(function RowView({ row, snap, selected, hasKids, note
                   Planned: {relativeDateLabel(planned, now)}
                 </span>
               )}
-              {item.repetition && (
+              {row.repeatLabel && (
                 <span className="det">
                   <RepeatIcon />
-                  {describeRule(item.repetition)}
+                  {row.repeatLabel}
                 </span>
               )}
               {item.estimatedMinutes ? (
@@ -575,13 +566,6 @@ export function Content() {
   useEffect(() => {
     setEditFieldRaw(null);
   }, [p]);
-
-  /** ids that have at least one child task (projects / groups) */
-  const parentsWithKids = useMemo(() => {
-    const s = new Set<ID>();
-    if (snap) for (const t of Object.values(snap.tasks)) if (t.parentId) s.add(t.parentId);
-    return s;
-  }, [snap?.tasks]);
 
   const selectableIds = useMemo(() => rows.filter((r) => r.kind !== 'header' && r.kind !== 'event').map((r) => r.id), [rows]);
 
@@ -772,17 +756,9 @@ export function Content() {
       items.push({
         label: 'Convert to Project',
         onSelect: () =>
-          void (async () => {
-            const pid = await api.addProject(t.name, null);
-            await api.setNote(pid, t.note);
-            if (t.flagged) await api.toggleFlag([pid]);
-            if (t.tagIds.length) await api.setItemTags(pid, t.tagIds);
-            if (t.deferDate || t.dueDate || t.plannedDate) await api.setItemDates(pid, t.deferDate, t.plannedDate, t.dueDate);
-            const kids = Object.values(snap.tasks).filter((k) => k.parentId === t.id).sort((a, b) => a.rank - b.rank).map((k) => k.id);
-            if (kids.length) await api.moveTasks(kids, pid, null);
-            await api.deleteItems([t.id]);
-            store.select([pid]);
-          })(),
+          void api.convertToProject(t.id).then((pid) => {
+            if (pid) store.select([pid]);
+          }),
       });
       items.push({
         label: 'Show in Projects',
@@ -843,7 +819,7 @@ export function Content() {
                 row={row}
                 snap={snap}
                 selected={row.kind !== 'header' && row.kind !== 'event' && sel.includes(row.id)}
-                hasKids={row.kind === 'task' ? row.info.hasChildren : parentsWithKids.has(row.id)}
+                hasKids={row.kind === 'task' ? row.info.hasChildren : row.kind === 'project' ? row.info.hasChildren : false}
                 noteExpanded={row.kind !== 'header' && row.kind !== 'event' && !!ui.noteExpanded[row.id]}
                 onSelect={(e) => {
                   if (row.kind === 'header' || row.kind === 'event') return;

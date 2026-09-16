@@ -18,6 +18,9 @@ pub struct TaskRow {
     pub show_project: bool,
     pub flat: bool,
     pub collapsed: bool,
+    /// "Every 2 weeks on Mon (defer another)" — filled by `build_content`
+    #[serde(default)]
+    pub repeat_label: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,6 +32,8 @@ pub struct ProjectRow {
     pub project: Project,
     pub info: ProjectInfo,
     pub collapsed: bool,
+    #[serde(default)]
+    pub repeat_label: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -170,7 +175,7 @@ fn task_tree(ctx: &Ctx, parent_id: &Id, depth: u32, show_project: bool, out: &mu
         if self_ok || group_visible {
             let key = format!("{}{}", key_prefix, t.id);
             let collapsed = ctx.collapsed(&key);
-            out.push(RowData::Task(TaskRow { key, id: t.id.clone(), depth, task: t.clone(), info: info.clone(), show_project, flat: false, collapsed }));
+            out.push(RowData::Task(TaskRow { key, id: t.id.clone(), depth, task: t.clone(), info: info.clone(), show_project, flat: false, collapsed, repeat_label: None }));
             n += 1;
             if !collapsed {
                 out.extend(kids_rows);
@@ -203,6 +208,18 @@ fn summary(a: u32, p: u32, unit: &str) -> String {
 }
 
 pub fn build_content(db: &Database, d: &Derived, search: &str) -> ContentModel {
+    let mut m = build_content_inner(db, d, search);
+    for row in &mut m.rows {
+        match row {
+            RowData::Task(t) => t.repeat_label = t.task.repetition.as_ref().map(crate::repeat::describe_rule),
+            RowData::Project(p) => p.repeat_label = p.project.repetition.as_ref().map(crate::repeat::describe_rule),
+            _ => {}
+        }
+    }
+    m
+}
+
+fn build_content_inner(db: &Database, d: &Derived, search: &str) -> ContentModel {
     let p = db.ui.perspective;
     let vo = db.view_options(p);
     let ctx = Ctx { db, d, vo, q: search.trim().to_string(), pinned: db.ui.pinned_ids.iter().cloned().collect() };
@@ -244,7 +261,7 @@ fn build_inbox(ctx: &Ctx) -> ContentModel {
         let kn = task_tree(ctx, &t.id, 1, false, &mut kids, "");
         if (ctx.avail_ok(info) && matches(&ctx.q, &[&t.name, &t.note])) || kn > 0 {
             let collapsed = ctx.collapsed(&t.id);
-            rows.push(RowData::Task(TaskRow { key: t.id.clone(), id: t.id.clone(), depth: 0, task: t.clone(), info: info.clone(), show_project: false, flat: false, collapsed }));
+            rows.push(RowData::Task(TaskRow { key: t.id.clone(), id: t.id.clone(), depth: 0, task: t.clone(), info: info.clone(), show_project: false, flat: false, collapsed, repeat_label: None }));
             if !collapsed {
                 rows.extend(kids);
             }
@@ -275,7 +292,7 @@ fn project_block(ctx: &Ctx, proj: &Project, depth: u32, rows: &mut Vec<RowData>)
     };
     if visible {
         let collapsed = ctx.collapsed(&proj.id);
-        rows.push(RowData::Project(ProjectRow { key: proj.id.clone(), id: proj.id.clone(), depth, project: proj.clone(), info: info.clone(), collapsed }));
+        rows.push(RowData::Project(ProjectRow { key: proj.id.clone(), id: proj.id.clone(), depth, project: proj.clone(), info: info.clone(), collapsed, repeat_label: None }));
         if !collapsed {
             rows.extend(kids);
         }
@@ -316,7 +333,7 @@ fn build_projects(ctx: &Ctx, sel: &[Id]) -> ContentModel {
         for t in &ctx.d.inbox {
             if let Some(info) = ctx.d.task_info.get(&t.id) {
                 if ctx.avail_ok(info) && matches(&ctx.q, &[&t.name, &t.note]) {
-                    inbox_rows.push(RowData::Task(TaskRow { key: t.id.clone(), id: t.id.clone(), depth: 1, task: t.clone(), info: info.clone(), show_project: false, flat: false, collapsed: false }));
+                    inbox_rows.push(RowData::Task(TaskRow { key: t.id.clone(), id: t.id.clone(), depth: 1, task: t.clone(), info: info.clone(), show_project: false, flat: false, collapsed: false, repeat_label: None }));
                 }
             }
         }
@@ -432,7 +449,7 @@ fn build_tags(ctx: &Ctx, sel: &[Id]) -> ContentModel {
             continue;
         }
         for i in items {
-            rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, i.task.id), id: i.task.id.clone(), depth: 1, task: i.task.clone(), info: i.clone(), show_project: true, flat: true, collapsed: false }));
+            rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, i.task.id), id: i.task.id.clone(), depth: 1, task: i.task.clone(), info: i.clone(), show_project: true, flat: true, collapsed: false, repeat_label: None }));
         }
     }
     let (a, pr) = count_rows(&rows);
@@ -643,8 +660,8 @@ fn build_forecast(ctx: &Ctx) -> ContentModel {
         }
         for x in list {
             match x {
-                ForecastItem::Task(t) => rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, t.task.id), id: t.task.id.clone(), depth: 1, task: t.task.clone(), info: t.clone(), show_project: true, flat: true, collapsed: false })),
-                ForecastItem::Project(p) => rows.push(RowData::Project(ProjectRow { key: format!("{}:{}", key, p.project.id), id: p.project.id.clone(), depth: 1, project: p.project.clone(), info: p.clone(), collapsed: false })),
+                ForecastItem::Task(t) => rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, t.task.id), id: t.task.id.clone(), depth: 1, task: t.task.clone(), info: t.clone(), show_project: true, flat: true, collapsed: false, repeat_label: None })),
+                ForecastItem::Project(p) => rows.push(RowData::Project(ProjectRow { key: format!("{}:{}", key, p.project.id), id: p.project.id.clone(), depth: 1, project: p.project.clone(), info: p.clone(), collapsed: false, repeat_label: None })),
                 ForecastItem::Event(e) => {
                     let time_label = if e.all_day { "all-day".to_string() } else { format!("{} – {}", time_label(e.start), time_label(e.end)) };
                     rows.push(RowData::Event(EventRow { key: format!("{}:ev:{}", key, e.id), id: e.id.clone(), depth: 1, event: e.clone(), time_label }));
@@ -662,10 +679,10 @@ fn build_flagged(ctx: &Ctx) -> ContentModel {
     if ctx.vo.flagged_group_by == FlaggedGrouping::Ungrouped {
         items.sort_by_key(|i| ctx.d.flat_order.get(&i.task.id).copied().unwrap_or(0));
         for p in projects {
-            rows.push(RowData::Project(ProjectRow { key: p.project.id.clone(), id: p.project.id.clone(), depth: 0, project: p.project.clone(), info: (*p).clone(), collapsed: false }));
+            rows.push(RowData::Project(ProjectRow { key: p.project.id.clone(), id: p.project.id.clone(), depth: 0, project: p.project.clone(), info: (*p).clone(), collapsed: false, repeat_label: None }));
         }
         for i in items {
-            rows.push(RowData::Task(TaskRow { key: i.task.id.clone(), id: i.task.id.clone(), depth: 0, task: i.task.clone(), info: i.clone(), show_project: true, flat: true, collapsed: false }));
+            rows.push(RowData::Task(TaskRow { key: i.task.id.clone(), id: i.task.id.clone(), depth: 0, task: i.task.clone(), info: i.clone(), show_project: true, flat: true, collapsed: false, repeat_label: None }));
         }
     } else {
         let mut groups: Vec<(String, String, Vec<TaskInfo>)> = Vec::new();
@@ -699,7 +716,7 @@ fn build_flagged(ctx: &Ctx) -> ContentModel {
                 continue;
             }
             for i in list {
-                rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, i.task.id), id: i.task.id.clone(), depth: 1, task: i.task.clone(), info: i, show_project: true, flat: true, collapsed: false }));
+                rows.push(RowData::Task(TaskRow { key: format!("{}:{}", key, i.task.id), id: i.task.id.clone(), depth: 1, task: i.task.clone(), info: i, show_project: true, flat: true, collapsed: false, repeat_label: None }));
             }
         }
     }
@@ -732,7 +749,7 @@ fn build_review(ctx: &Ctx, sel: &[Id]) -> ContentModel {
     let chosen: Vec<&ProjectInfo> = if !sel.is_empty() { list.iter().filter(|p| sel.contains(&p.project.id)).collect() } else { list.iter().take(1).collect() };
     for p in &chosen {
         let collapsed = ctx.collapsed(&p.project.id);
-        rows.push(RowData::Project(ProjectRow { key: p.project.id.clone(), id: p.project.id.clone(), depth: 0, project: p.project.clone(), info: (*p).clone(), collapsed }));
+        rows.push(RowData::Project(ProjectRow { key: p.project.id.clone(), id: p.project.id.clone(), depth: 0, project: p.project.clone(), info: (*p).clone(), collapsed, repeat_label: None }));
         if !collapsed {
             task_tree(ctx, &p.project.id, 1, false, &mut rows, "");
         }
