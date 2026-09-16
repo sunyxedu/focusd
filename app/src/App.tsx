@@ -9,6 +9,7 @@ import { Inspector } from './components/Inspector';
 import { QuickEntry } from './components/QuickEntry';
 import { QuickOpen } from './components/QuickOpen';
 import { SettingsModal } from './components/Settings';
+import { CompactShell } from './components/Compact';
 import type { Perspective } from './core/types';
 
 /** Width breakpoints mirroring Focusd' iPhone / iPad / Mac layouts. */
@@ -197,13 +198,19 @@ export function App() {
 
   return (
     <div className={`app layout-${layout}`}>
-      <Toolbar onQuickEntry={() => setQuickEntry(true)} />
-      <div className="main">
-        <PerspectivesBar />
-        {sidebarVisible && <Sidebar />}
-        <Content />
-        {ui.inspectorVisible && <Inspector />}
-      </div>
+      {layout === 'compact' ? (
+        <CompactShell onQuickEntry={() => setQuickEntry(true)} onSettings={() => setSettings(true)} />
+      ) : (
+        <>
+          <Toolbar onQuickEntry={() => setQuickEntry(true)} />
+          <div className="main">
+            <PerspectivesBar />
+            {sidebarVisible && <Sidebar />}
+            <Content />
+            {ui.inspectorVisible && <Inspector />}
+          </div>
+        </>
+      )}
       {quickEntry && <QuickEntry onClose={() => setQuickEntry(false)} />}
       {quickOpen && <QuickOpen onClose={() => setQuickOpen(false)} />}
       {settings && <SettingsModal onClose={() => setSettings(false)} />}

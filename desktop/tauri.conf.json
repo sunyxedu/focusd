@@ -6,8 +6,8 @@
   "build": {
     "frontendDist": "../app/dist",
     "devUrl": "http://localhost:5180",
-    "beforeDevCommand": "npm --prefix ../app run dev",
-    "beforeBuildCommand": "npm --prefix ../app run build"
+    "beforeDevCommand": "sh -c 'cd \"$(git rev-parse --show-toplevel)/app\" && npm run dev'",
+    "beforeBuildCommand": "sh -c 'cd \"$(git rev-parse --show-toplevel)/app\" && npm run build'"
   },
   "app": {
     "withGlobalTauri": false,
@@ -24,7 +24,10 @@
         "fullscreen": false,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "trafficLightPosition": { "x": 14, "y": 18 },
+        "trafficLightPosition": {
+          "x": 14,
+          "y": 18
+        },
         "dragDropEnabled": false
       }
     ],
@@ -35,10 +38,18 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["focus", "focusd"]
+        "schemes": [
+          "focus",
+          "focusd"
+        ]
       },
       "mobile": [
-        { "host": "focus.hemlix.dev", "pathPrefix": ["/add"] }
+        {
+          "host": "focus.hemlix.dev",
+          "pathPrefix": [
+            "/add"
+          ]
+        }
       ]
     }
   },
