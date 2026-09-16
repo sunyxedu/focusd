@@ -10,8 +10,8 @@ import { Menu, MenuItem } from './Popover';
 import '../styles/sidebar.css';
 
 /** Drag payload type used by the outline for task rows (kept in sync with Outline.tsx). */
-const TASK_DRAG_TYPE = 'text/hf-task-ids';
-const SB_DRAG_TYPE = 'text/hf-sidebar';
+const TASK_DRAG_TYPE = 'text/focus-task-ids';
+const SB_DRAG_TYPE = 'text/focus-sidebar';
 
 type DropPos = 'into' | 'before' | 'after';
 
@@ -56,9 +56,8 @@ function afterForBefore(snap: Snapshot, moved: ID, target: ID): ID | null {
   const { siblings } = siblingsOf(snap, target);
   const list = siblings.filter((x) => x !== moved);
   const i = list.indexOf(target);
-  // No "insert first" in the core yet: fall back to placing after the previous sibling
-  // (or at the front when target is first, which the core cannot express → put it after target's predecessor = none → end).
-  return i > 0 ? list[i - 1] : null;
+  // '' is the core's "insert as first sibling" sentinel
+  return i > 0 ? list[i - 1] : '';
 }
 
 function useDropPos(kindOfTarget: (id: ID) => 'container' | 'leaf') {
