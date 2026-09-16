@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="900" viewBox="0 0 2400 900" font-family="-apple-system, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1a7cf5"/>
+    </marker>
+    <marker id="arrowGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8a8a90"/>
+    </marker>
+    <style>
+      .h { font-size: 30px; font-weight: 700; fill: #1d1d1f; }
+      .sub { font-size: 20px; fill: #6e6e73; }
+      .t { font-size: 22px; fill: #1d1d1f; }
+      .ts { font-size: 19px; fill: #3a3a3c; }
+      .mono { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 18px; fill: #1d1d1f; }
+      .monoK { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 18px; fill: #1a7cf5; }
+      .monoC { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 17px; fill: #8a8a90; }
+      .lbl { font-size: 18px; font-weight: 600; fill: #1a7cf5; }
+      .box { fill: #ffffff; stroke: #d9d9dc; stroke-width: 2; }
+      .stage { fill: #f7f7f8; stroke: #d9d9dc; stroke-width: 2; }
+      .core { fill: #f2f7ff; stroke: #1a7cf5; stroke-width: 3; }
+      .pill { fill: #e8f0fe; }
+      .flow { stroke: #1a7cf5; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .flowd { stroke: #1a7cf5; stroke-width: 2.5; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrow); }
+      .grey { stroke: #8a8a90; stroke-width: 2; fill: none; marker-end: url(#arrowGrey); }
+    </style>
+  </defs>
+
+  <!-- ================= CAPTURE ================= -->
+  <text x="60" y="70" class="h">Capture</text>
+  <text x="60" y="102" class="sub">every way work arrives</text>
+
+  <g transform="translate(60,140)">
+    <rect width="440" height="82" rx="14" class="box"/>
+    <rect x="18" y="20" width="42" height="42" rx="10" fill="#5b62c4"/>
+    <path d="M28 44 h22 M39 33 v22" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <text x="78" y="38" class="t">Quick Entry</text>
+    <text x="78" y="64" class="ts">⌃⌥Space anywhere · ⌘N in the outline</text>
+  </g>
+  <g transform="translate(60,240)">
+    <rect width="440" height="82" rx="14" class="box"/>
+    <rect x="18" y="20" width="42" height="42" rx="10" fill="#1a86ff"/>
+    <path d="M30 41 h20 M42 33 l8 8 -8 8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="78" y="38" class="t">URL scheme</text>
+    <text x="78" y="64" class="monoC">focusd://add?name=…&amp;note=…&amp;flag=1</text>
+  </g>
+  <g transform="translate(60,340)">
+    <rect width="440" height="82" rx="14" class="box"/>
+    <rect x="18" y="20" width="42" height="42" rx="10" fill="#34c759"/>
+    <path d="M28 33 h24 v18 h-24 z M28 33 l12 9 12 -9" stroke="#fff" stroke-width="3" fill="none" stroke-linejoin="round"/>
+    <text x="78" y="38" class="t">Mail Drop</text>
+    <text x="78" y="64" class="ts">IMAP folder → subject = name, body = note</text>
+  </g>
+  <g transform="translate(60,440)">
+    <rect width="440" height="82" rx="14" class="box"/>
+    <rect x="18" y="20" width="42" height="42" rx="10" fill="#f0403e"/>
+    <path d="M28 34 h24 v20 h-24 z M28 41 h24 M35 30 v6 M45 30 v6" stroke="#fff" stroke-width="3" fill="none"/>
+    <text x="78" y="38" class="t">Calendar feeds</text>
+    <text x="78" y="64" class="ts">ICS / webcal, recurring events expanded</text>
+  </g>
+
+  <!-- capture → core arrows -->
+  <path d="M500 181 C 560 181, 560 300, 640 300" class="flow"/>
+  <path d="M500 281 C 560 281, 560 300, 640 300" class="flow"/>
+  <path d="M500 381 C 560 381, 560 300, 640 300" class="flow"/>
+  <path d="M500 481 C 560 481, 560 640, 640 640" class="flowd"/>
+  <rect x="520" y="255" width="96" height="30" rx="8" class="pill"/>
+  <text x="568" y="276" text-anchor="middle" class="lbl">addTask</text>
+  <rect x="514" y="596" width="112" height="30" rx="8" class="pill"/>
+  <text x="570" y="617" text-anchor="middle" class="lbl">events</text>
+
+  <!-- ================= CORE ================= -->
+  <text x="650" y="70" class="h">Rust core</text>
+  <text x="650" y="102" class="sub">every rule lives here, once · no unsafe · tested</text>
+  <rect x="640" y="130" width="960" height="620" rx="24" class="core"/>
+
+  <!-- pipeline inside core -->
+  <g transform="translate(672,166)">
+    <rect width="270" height="150" rx="14" class="box"/>
+    <text x="20" y="36" class="t" font-weight="700">Database</text>
+    <text x="20" y="66" class="ts">tasks · projects · folders · tags</text>
+    <text x="20" y="92" class="ts">view options · settings</text>
+    <text x="20" y="118" class="ts">JSON on disk / IndexedDB</text>
+  </g>
+  <path d="M942 241 H 986" class="flow"/>
+  <g transform="translate(990,166)">
+    <rect width="290" height="150" rx="14" class="box"/>
+    <text x="20" y="36" class="t" font-weight="700">Derive</text>
+    <text x="20" y="66" class="ts">available · blocked · next action</text>
+    <text x="20" y="92" class="ts">inherited defer / due · due soon</text>
+    <text x="20" y="118" class="ts">badges · review needed</text>
+  </g>
+  <path d="M1280 241 H 1324" class="flow"/>
+  <g transform="translate(1328,166)">
+    <rect width="264" height="150" rx="14" class="box"/>
+    <text x="20" y="36" class="t" font-weight="700">Perspectives</text>
+    <text x="20" y="66" class="ts">Inbox · Projects · Tags · Forecast</text>
+    <text x="20" y="92" class="ts">Flagged · Review</text>
+    <text x="20" y="118" class="ts">→ rows, sidebar, counts</text>
+  </g>
+
+  <!-- rules row -->
+  <g transform="translate(672,346)">
+    <rect width="224" height="64" rx="12" class="stage"/>
+    <text x="112" y="28" text-anchor="middle" class="ts" font-weight="600">Repeat rules</text>
+    <text x="112" y="52" text-anchor="middle" class="ts">fixed · defer · due again</text>
+  </g>
+  <g transform="translate(912,346)">
+    <rect width="224" height="64" rx="12" class="stage"/>
+    <text x="112" y="28" text-anchor="middle" class="ts" font-weight="600">Natural-language dates</text>
+    <text x="112" y="52" text-anchor="middle" class="monoC">tomorrow 5pm · fri</text>
+  </g>
+  <g transform="translate(1152,346)">
+    <rect width="224" height="64" rx="12" class="stage"/>
+    <text x="112" y="28" text-anchor="middle" class="ts" font-weight="600">Review scheduling</text>
+    <text x="112" y="52" text-anchor="middle" class="ts">intervals · Project n of N</text>
+  </g>
+  <g transform="translate(1392,346)">
+    <rect width="200" height="64" rx="12" class="stage"/>
+    <text x="100" y="28" text-anchor="middle" class="ts" font-weight="600">Undo / redo</text>
+    <text x="100" y="52" text-anchor="middle" class="ts">whole-database states</text>
+  </g>
+
+  <!-- bridge artifact -->
+  <g transform="translate(672,440)">
+    <rect width="908" height="280" rx="14" fill="#ffffff" stroke="#d9d9dc" stroke-width="2"/>
+    <text x="20" y="34" class="ts" font-weight="600">JSON bridge — the only door into the core, identical on every host</text>
+    <text x="20" y="76" class="mono"><tspan class="monoK">dispatch</tspan>(store, <tspan fill="#c41d7f">"toggleComplete"</tspan>, { ids: [<tspan fill="#c41d7f">"aI9k…"</tspan>] })</text>
+    <text x="20" y="112" class="mono"><tspan class="monoK">dispatch</tspan>(store, <tspan fill="#c41d7f">"snapshot"</tspan>, {})</text>
+    <text x="40" y="150" class="monoC">→ {</text>
+    <text x="70" y="180" class="mono">perspective: <tspan fill="#c41d7f">"projects"</tspan>,  badges: { inbox: 3, forecast: 1, review: 2 },</text>
+    <text x="70" y="210" class="mono">content: { rows: [ { kind: <tspan fill="#c41d7f">"task"</tspan>, depth: 2, info: { available: true, isNext: true } } ] },</text>
+    <text x="70" y="240" class="mono">sidebar: { forecast: { days: [ { key: <tspan fill="#c41d7f">"2026-09-17"</tspan>, count: 4 }, … ] } },  canUndo: true</text>
+    <text x="40" y="266" class="monoC">}</text>
+  </g>
+
+  <!-- ================= HOSTS ================= -->
+  <text x="1760" y="70" class="h">Hosts</text>
+  <text x="1760" y="102" class="sub">thin shells, one React UI</text>
+
+  <path d="M1600 300 C 1690 300, 1670 232, 1760 232" class="flow"/>
+  <path d="M1600 300 C 1690 300, 1670 420, 1760 420" class="flow"/>
+  <rect x="1616" y="262" width="136" height="30" rx="8" class="pill"/>
+  <text x="1684" y="283" text-anchor="middle" class="lbl" font-size="17">Snapshot (JSON)</text>
+
+  <g transform="translate(1760,150)">
+    <rect width="600" height="164" rx="14" class="box"/>
+    <text x="20" y="36" class="t" font-weight="700">Tauri host — native core</text>
+    <text x="20" y="66" class="ts">macOS · Windows · Linux · iOS · iPadOS</text>
+    <text x="20" y="96" class="ts">native window &amp; menu bar · keychain · notifications</text>
+    <text x="20" y="126" class="ts">deep links · IMAP &amp; ICS workers · file on disk</text>
+    <text x="20" y="152" class="monoC">invoke("call", { method, args })</text>
+  </g>
+  <g transform="translate(1760,338)">
+    <rect width="600" height="164" rx="14" class="box"/>
+    <text x="20" y="36" class="t" font-weight="700">Browser — WebAssembly core</text>
+    <text x="20" y="66" class="ts">the same crate compiled to wasm32</text>
+    <text x="20" y="96" class="ts">runs entirely in the page · IndexedDB persistence</text>
+    <text x="20" y="126" class="ts">Notification API · no server, no account</text>
+    <text x="20" y="152" class="monoC">wasmStore.call(method, argsJson)</text>
+  </g>
+
+  <path d="M2360 232 H 2386 V 645 H 2366" class="grey"/>
+  <path d="M2060 502 V 536" class="grey"/>
+
+  <!-- UI -->
+  <g transform="translate(1760,540)">
+    <rect width="600" height="210" rx="14" class="core" fill="#ffffff"/>
+    <text x="20" y="36" class="t" font-weight="700">React UI — renders the snapshot, no rules of its own</text>
+    <!-- mac thumbnail -->
+    <g transform="translate(20,56)">
+      <rect width="250" height="130" rx="8" fill="#f7f7f8" stroke="#d9d9dc"/>
+      <rect x="0" y="0" width="250" height="18" rx="8" fill="#ececef"/>
+      <rect x="0" y="18" width="34" height="112" fill="#f0f0f2"/>
+      <rect x="34" y="18" width="70" height="112" fill="#f7f7f8"/>
+      <rect x="104" y="18" width="146" height="112" fill="#ffffff"/>
+      <rect x="112" y="28" width="60" height="8" rx="3" fill="#1a86ff"/>
+      <g fill="#d9d9dc"><rect x="112" y="46" width="120" height="6" rx="3"/><rect x="120" y="60" width="100" height="6" rx="3"/><rect x="120" y="74" width="90" height="6" rx="3"/><rect x="120" y="88" width="110" height="6" rx="3"/><rect x="120" y="102" width="80" height="6" rx="3"/></g>
+      <g fill="#5b62c4"><rect x="8" y="26" width="18" height="12" rx="3"/></g>
+      <g fill="#1a86ff"><rect x="8" y="46" width="18" height="12" rx="3"/></g>
+      <g fill="#7c3fc9"><rect x="8" y="66" width="18" height="12" rx="3"/></g>
+      <g fill="#f0403e"><rect x="8" y="86" width="18" height="12" rx="3"/></g>
+      <text x="125" y="150" text-anchor="middle" class="ts">Mac · Windows · Linux</text>
+    </g>
+    <!-- tablet -->
+    <g transform="translate(300,56)">
+      <rect width="170" height="130" rx="8" fill="#f7f7f8" stroke="#d9d9dc"/>
+      <rect x="0" y="0" width="52" height="130" rx="8" fill="#f0f0f2"/>
+      <rect x="52" y="0" width="118" height="130" fill="#ffffff"/>
+      <rect x="60" y="14" width="50" height="8" rx="3" fill="#7c3fc9"/>
+      <g fill="#d9d9dc"><rect x="60" y="34" width="90" height="6" rx="3"/><rect x="66" y="48" width="80" height="6" rx="3"/><rect x="66" y="62" width="70" height="6" rx="3"/><rect x="66" y="76" width="85" height="6" rx="3"/></g>
+      <text x="85" y="150" text-anchor="middle" class="ts">iPad</text>
+    </g>
+    <!-- phone -->
+    <g transform="translate(500,56)">
+      <rect width="70" height="130" rx="10" fill="#f2f2f7" stroke="#d9d9dc"/>
+      <rect x="8" y="14" width="54" height="10" rx="3" fill="#1d1d1f"/>
+      <rect x="8" y="34" width="54" height="72" rx="6" fill="#ffffff"/>
+      <g fill="#d9d9dc"><rect x="14" y="44" width="40" height="5" rx="2"/><rect x="14" y="56" width="40" height="5" rx="2"/><rect x="14" y="68" width="40" height="5" rx="2"/><rect x="14" y="80" width="40" height="5" rx="2"/><rect x="14" y="92" width="40" height="5" rx="2"/></g>
+      <text x="35" y="150" text-anchor="middle" class="ts">iPhone</text>
+    </g>
+      </g>
+
+  <!-- bottom captions -->
+  <text x="60" y="820" class="sub">Inputs are normalised into one JSON call.</text>
+  <text x="650" y="820" class="sub">The core computes what is available, blocked, due and next — and returns a ready-to-render snapshot.</text>
+  <text x="1760" y="820" class="sub">Hosts add only what a page cannot do; the UI never re-implements rules.</text>
+</svg>
